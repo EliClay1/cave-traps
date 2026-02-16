@@ -1,0 +1,13 @@
+{
+  "itemGroup.cavetraps": "Example Mod Tab",
+  "block.cavetraps.example_block": "Example Block",
+  "item.cavetraps.example_item": "Example Item",
+
+  "cavetraps.configuration.title": "Cave Traps Configs",
+  "cavetraps.configuration.section.cavetraps.common.toml": "Cave Traps Configs",
+  "cavetraps.configuration.section.cavetraps.common.toml.title": "Cave Traps Configs",
+  "cavetraps.configuration.items": "Item List",
+  "cavetraps.configuration.logDirtBlock": "Log Dirt Block",
+  "cavetraps.configuration.magicNumberIntroduction": "Magic Number Text",
+  "cavetraps.configuration.magicNumber": "Magic Number"
+}
