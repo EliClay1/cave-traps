@@ -16,6 +16,11 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
+
 public class FallingTrapBlock extends FallingBlock {
 
     public static final Property<Boolean> STABLE = BooleanProperty.create("stable");
@@ -44,7 +49,13 @@ public class FallingTrapBlock extends FallingBlock {
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        if (!level.isClientSide() && state.getValue(STABLE)) {
+        if (!level.isClientSide()) {
+            if (isGroupPowered(level, pos)) {
+                return;
+            }
+
+        }
+        if (state.getValue(STABLE)) {
             level.setBlockAndUpdate(pos, state.setValue(STABLE, false));
             level.scheduleTick(pos, state.getBlock(), initialFallTime);
         }
@@ -59,16 +70,39 @@ public class FallingTrapBlock extends FallingBlock {
         }
     }
 
-//    private void triggerNeighbor(Level level, BlockPos pos) {
-//        for (Direction d: Direction.Plane.HORIZONTAL) {
-//            BlockPos neighborPos = pos.relative(d);
-//            BlockState neighborState = level.getBlockState(neighborPos);
-//            if (neighborState.getBlock() instanceof FallingTrapBlock && neighborState.getValue(STABLE)) {
-//                level.setBlock(neighborPos, neighborState.setValue(STABLE, false), 3);
-//                level.scheduleTick(neighborPos, this, 4);
-//            }
-//        }
-//    }
+    public boolean isGroupPowered(Level level, BlockPos startPos) {
+        Queue<BlockPos> queue = new LinkedList<>();
+        Set<BlockPos> visited = new HashSet<>();
+
+        queue.add(startPos);
+        visited.add(startPos);
+
+        int MAX_SEARCH_SIZE = 2048;
+        int searchedCount = 0;
+
+        while (!queue.isEmpty()) {
+            BlockPos currentPos = queue.poll();
+            searchedCount++;
+
+            if (level.hasNeighborSignal(currentPos)) {
+                return true;
+            }
+            if (searchedCount >= MAX_SEARCH_SIZE) {
+                break;
+            }
+            for (Direction direction : Direction.values()) {
+                BlockPos neighborPos = currentPos.relative(direction);
+                if (!visited.contains(neighborPos)) {
+                    BlockState neighborState = level.getBlockState(neighborPos);
+                    if (neighborState.getBlock() instanceof FallingTrapBlock) {
+                        visited.add(neighborPos);
+                        queue.add(neighborPos);
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     @Override
     protected MapCodec<? extends FallingBlock> codec() {
