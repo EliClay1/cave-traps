@@ -15,11 +15,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(CaveTraps.MODID);
 
-//    public static final DeferredBlock<Block> TEST_BLOCK = BLOCKS.register("test_block", registryName -> (
-//            new Block(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName)))
-//            ));
-
-    public static final DeferredBlock<FallingBlock> TEST_BLOCK = BLOCKS.register("test_block", registryName -> (
+    public static final DeferredBlock<FallingBlock> FALLING_TRAP_BLOCK = BLOCKS.register("falling_trap_block", registryName -> (
             new FallingTrapBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName)))
             ));
 
