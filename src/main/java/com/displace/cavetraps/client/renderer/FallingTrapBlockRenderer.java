@@ -31,6 +31,8 @@ public class FallingTrapBlockRenderer implements BlockEntityRenderer<FallingTrap
     public void extractRenderState(FallingTrapBlockEntity blockEntity, FallingTrapRenderState renderState, float partialTick, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, renderState, partialTick, cameraPosition, breakProgress);
         BlockState camo = blockEntity.getCamoState();
+        renderState.pos = blockEntity.getBlockPos();
+        renderState.level = blockEntity.getLevel();
         renderState.camoState = (camo != null) ? camo : Blocks.AIR.defaultBlockState();
     }
 

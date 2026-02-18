@@ -5,12 +5,14 @@ import com.displace.cavetraps.entity.FallingTrapBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,6 +31,9 @@ import java.util.Set;
 
 public class FallingTrapBlock extends FallingBlock implements EntityBlock {
 
+    // TODO - Make it so the block can only change render states one time. Then the player must break the block and replace it to change it's render state.
+    //  follow the same code that used for stability neighbor detection. Use it for camo-mapping detection.
+
     public static final Property<Boolean> STABLE = BooleanProperty.create("stable");
     public final int initialFallTime = 10;
 
@@ -39,6 +44,14 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
+//        if (!level.isClientSide()) {
+//            BlockEntity blockEntity = level.getBlockEntity(pos);
+//            if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
+//                trapBlockEntity.setCamoState(Blocks.DIAMOND_BLOCK.defaultBlockState());
+//                CaveTraps.LOGGER.info("DEBUG: Set camo to diamond block at " + pos);
+//            }
+//        }
+//        super.onPlace(state, level, pos, oldState, isMoving);
     }
 
     @Override
@@ -118,6 +131,15 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     @Override
     public int getDustColor(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
         return 0;
+    }
+
+    @Override
+    protected void falling(FallingBlockEntity entity) {
+        BlockEntity blockEntity = entity.level().getBlockEntity(entity.blockPosition());
+        if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
+            BlockState camo = trapBlockEntity.getCamoState();
+            trapBlockEntity.saveWithFullMetadata(entity.level().registryAccess());
+        }
     }
 
     @Override
