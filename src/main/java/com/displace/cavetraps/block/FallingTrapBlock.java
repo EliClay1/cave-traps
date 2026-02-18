@@ -1,6 +1,7 @@
 package com.displace.cavetraps.block;
 
 import com.displace.cavetraps.CaveTraps;
+import com.displace.cavetraps.entity.FallingTrapBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,18 +11,23 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-public class FallingTrapBlock extends FallingBlock {
+public class FallingTrapBlock extends FallingBlock implements EntityBlock {
 
     public static final Property<Boolean> STABLE = BooleanProperty.create("stable");
     public final int initialFallTime = 10;
@@ -117,5 +123,15 @@ public class FallingTrapBlock extends FallingBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(STABLE);
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new FallingTrapBlockEntity(blockPos, blockState);
+    }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        return EntityBlock.super.getTicker(level, state, blockEntityType);
     }
 }
