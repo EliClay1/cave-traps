@@ -1,5 +1,6 @@
 package com.displace.cavetraps.block;
 
+import com.displace.cavetraps.CaveTraps;
 import com.displace.cavetraps.blockentities.FallingTrapBlockEntity;
 import com.displace.cavetraps.entities.FallingTrapEntity;
 import com.displace.cavetraps.entities.ModEntities;
@@ -76,9 +77,14 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
             if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
                 camo = trapBlockEntity.getCamoState();
             }
-            if (camo.isAir()) {
-                camo = Blocks.SAND.defaultBlockState();
-            }
+
+//            if (camo.isAir()) {
+//                camo = Blocks.SAND.defaultBlockState();  // test value
+//                CaveTraps.LOGGER.info("[FallingTrapBlock] forcing camo to SAND");
+//            }
+
+//            CaveTraps.LOGGER.info("[FallingTrapBlock] camo at tick = {}", camo);
+
             level.removeBlockEntity(pos);
             FallingTrapEntity.spawn(ModEntities.FALLING_TRAP_ENTITY.get(), level, pos, state, camo);
         }

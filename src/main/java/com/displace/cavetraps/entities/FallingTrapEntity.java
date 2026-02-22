@@ -1,5 +1,6 @@
 package com.displace.cavetraps.entities;
 
+import com.displace.cavetraps.CaveTraps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -20,9 +21,9 @@ public class FallingTrapEntity extends FallingBlockEntity {
         FallingTrapEntity trapEntity = new FallingTrapEntity(entityType, level);
 
         // gets the coordinates of where the block should be created.
-        double x = pos.getX() + 0.5D;
+        double x = pos.getX();
         double y = pos.getY();
-        double z = pos.getZ() + 0.5D;
+        double z = pos.getZ();
         trapEntity.setPos(x, y, z);
         trapEntity.xo = x;
         trapEntity.yo = y;
