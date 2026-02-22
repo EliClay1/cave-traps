@@ -1,5 +1,6 @@
 package com.displace.cavetraps.entities;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
@@ -13,6 +14,26 @@ public class FallingTrapEntity extends FallingBlockEntity {
 
     public FallingTrapEntity(EntityType<? extends FallingBlockEntity> entityType, Level level) {
         super(entityType, level);
+    }
+
+    public static FallingTrapEntity spawn(EntityType<? extends FallingBlockEntity> entityType, Level level, BlockPos pos, BlockState camoState) {
+        FallingTrapEntity trapEntity = new FallingTrapEntity(entityType, level);
+
+        // gets the coordinates of where the block should be created.
+        double x = pos.getX();
+        double y = pos.getY();
+        double z = pos.getZ();
+
+        trapEntity.setPos(x, y, z);
+        trapEntity.xo = x;
+        trapEntity.yo = y;
+        trapEntity.zo = z;
+
+        trapEntity.setStartPos(pos);
+
+        trapEntity.setCamoState(camoState);
+        level.addFreshEntity(trapEntity);
+        return trapEntity;
     }
 
     public BlockState getCamoState() {
@@ -34,4 +55,5 @@ public class FallingTrapEntity extends FallingBlockEntity {
         super.readAdditionalSaveData(input);
         input.read("camo_state", BlockState.CODEC).ifPresent(blockState -> this.camoState = blockState);
     }
+
 }

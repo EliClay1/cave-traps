@@ -9,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -75,10 +76,8 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
             if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
                 camo = trapBlockEntity.getCamoState();
             }
-            level.removeBlock(pos, false);
-            FallingTrapEntity entity = new FallingTrapEntity(ModEntities.FALLING_TRAP_ENTITY.get(), level);
-            entity.setCamoState(camo);
-            level.addFreshEntity(entity);
+//            level.removeBlock(pos, false);
+            FallingTrapEntity.spawn(ModEntities.FALLING_TRAP_ENTITY.get(), level, pos, camo);
         }
     }
 
