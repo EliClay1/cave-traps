@@ -1,6 +1,7 @@
 package com.displace.cavetraps;
 
 import com.displace.cavetraps.block.ModBlocks;
+import com.displace.cavetraps.entities.ModEntities;
 import com.displace.cavetraps.item.ModItems;
 import com.displace.cavetraps.blockentities.ModBlockEntities;
 import net.minecraft.world.item.*;
@@ -52,6 +53,7 @@ public class CaveTraps {
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
         ModBlockEntities.register(modEventBus);
+        ModEntities.register(modEventBus);
 
         CREATIVE_MODE_TABS.register(modEventBus);
 
