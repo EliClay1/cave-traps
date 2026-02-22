@@ -77,6 +77,16 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
         }
     }
 
+    @Override
+    protected void falling(FallingBlockEntity entity) {
+        BlockEntity blockEntity = entity.level().getBlockEntity(entity.blockPosition());
+        if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
+//            BlockState camo = trapBlockEntity.getCamoState();
+            trapBlockEntity.saveWithFullMetadata(entity.level().registryAccess());
+        }
+        super.falling(entity);
+    }
+
     public boolean isGroupPowered(Level level, BlockPos startPos) {
         Queue<BlockPos> queue = new LinkedList<>();
         Set<BlockPos> visited = new HashSet<>();
