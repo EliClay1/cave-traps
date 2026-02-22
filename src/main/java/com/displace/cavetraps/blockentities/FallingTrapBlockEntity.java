@@ -54,6 +54,12 @@ public class FallingTrapBlockEntity extends BlockEntity {
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         input.read("camo_state", BlockState.CODEC).ifPresent(blockState -> this.camoState = blockState);
+        if (level != null) {
+            boolean hasCamo = this.camoState != null && !this.camoState.isAir();
+            level.setBlock(getBlockPos(),
+                    getBlockState().setValue(FallingTrapBlock.HAS_CAMO, hasCamo),
+                    Block.UPDATE_CLIENTS);
+        }
     }
 
     // Next up is network syncing. This is especially important because the server can see and process everything,

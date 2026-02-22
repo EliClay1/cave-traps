@@ -35,7 +35,7 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     public FallingTrapBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.getStateDefinition().any().setValue(STABLE, true));
-        this.registerDefaultState(this.getStateDefinition().any().setValue(HAS_CAMO, true));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(HAS_CAMO, false));
     }
 
     @Override
@@ -130,5 +130,13 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new FallingTrapBlockEntity(blockPos, blockState);
+    }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
+        if (!state.getValue(HAS_CAMO)) {
+            return RenderShape.MODEL;
+        }
+        return RenderShape.INVISIBLE;
     }
 }

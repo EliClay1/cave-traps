@@ -1,5 +1,6 @@
 {
   "variants": {
-    "": { "model": "cavetraps:block/falling_trap_block" }
+    "has_camo=false": { "model": "cavetraps:block/falling_trap_block" },
+    "has_camo=true":  { "model": "cavetraps:block/falling_trap_block" }
   }
 }
