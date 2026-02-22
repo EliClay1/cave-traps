@@ -77,6 +77,9 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
             if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
                 camo = trapBlockEntity.getCamoState();
             }
+            if (camo == null || camo.isAir()) {
+                camo = state;
+            }
             level.removeBlockEntity(pos);
             FallingTrapEntity.spawn(ModEntities.FALLING_TRAP_ENTITY.get(), level, pos, state, camo);
         }
