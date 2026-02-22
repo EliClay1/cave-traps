@@ -18,6 +18,10 @@ public class ModItems {
             new BlockItem(ModBlocks.FALLING_TRAP_BLOCK.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName)))
     ));
 
+    public static final DeferredItem<Item> TEST_RENDER_BLOCK_ITEM = ITEMS.register("test_render_block", registryName -> (
+            new BlockItem(ModBlocks.TEST_RENDER_BLOCK.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName)))
+    ));
+
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }
