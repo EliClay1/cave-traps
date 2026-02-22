@@ -1,38 +1,27 @@
 package com.displace.cavetraps.block;
 
 import com.displace.cavetraps.CaveTraps;
-import com.displace.cavetraps.entity.FallingTrapBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FallingBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-public class FallingTrapBlock extends FallingBlock implements EntityBlock {
-
-    // TODO - Make it so the block can only change render states one time. Then the player must break the block and replace it to change it's render state.
-    //  follow the same code that used for stability neighbor detection. Use it for camo-mapping detection.
+public class FallingTrapBlock extends FallingBlock {
 
     public static final Property<Boolean> STABLE = BooleanProperty.create("stable");
     public final int initialFallTime = 10;
@@ -44,14 +33,6 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
-//        if (!level.isClientSide()) {
-//            BlockEntity blockEntity = level.getBlockEntity(pos);
-//            if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
-//                trapBlockEntity.setCamoState(Blocks.DIAMOND_BLOCK.defaultBlockState());
-//                CaveTraps.LOGGER.info("DEBUG: Set camo to diamond block at " + pos);
-//            }
-//        }
-//        super.onPlace(state, level, pos, oldState, isMoving);
     }
 
     @Override
@@ -134,26 +115,7 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     }
 
     @Override
-    protected void falling(FallingBlockEntity entity) {
-        BlockEntity blockEntity = entity.level().getBlockEntity(entity.blockPosition());
-        if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
-            BlockState camo = trapBlockEntity.getCamoState();
-            trapBlockEntity.saveWithFullMetadata(entity.level().registryAccess());
-        }
-    }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(STABLE);
-    }
-
-    @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new FallingTrapBlockEntity(blockPos, blockState);
-    }
-
-    @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return EntityBlock.super.getTicker(level, state, blockEntityType);
     }
 }

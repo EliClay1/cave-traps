@@ -31,9 +31,4 @@ public class CaveTrapsClient {
         CaveTraps.LOGGER.info("HELLO FROM CLIENT SETUP");
         CaveTraps.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
     }
-
-    @SubscribeEvent
-    static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(ModBlockEntities.FALLING_TRAP_BE.get(), FallingTrapBlockRenderer::new);
-    }
 }

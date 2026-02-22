@@ -4,7 +4,6 @@ import com.displace.cavetraps.CaveTraps;
 import com.displace.cavetraps.block.ModBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
@@ -18,8 +17,4 @@ public class ModBlockEntities {
             false,
             ModBlocks.FALLING_TRAP_BLOCK.get()
     ));
-
-    public static void register(IEventBus eventBus) {
-        BLOCK_ENTITY_TYPES.register(eventBus);
-    }
 }
