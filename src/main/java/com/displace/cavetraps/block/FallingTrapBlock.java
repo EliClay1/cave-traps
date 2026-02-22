@@ -1,19 +1,16 @@
 package com.displace.cavetraps.block;
 
-import com.displace.cavetraps.CaveTraps;
 import com.displace.cavetraps.blockentities.FallingTrapBlockEntity;
+import com.displace.cavetraps.entities.FallingTrapEntity;
+import com.displace.cavetraps.entities.ModEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.*;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.FallingBlock;
-import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -25,6 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+
 
 public class FallingTrapBlock extends FallingBlock implements EntityBlock {
 
@@ -72,19 +70,16 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (isFree(level.getBlockState(pos.below())) && !state.getValue(STABLE) && pos.getY() >= level.getMinY()) {
-            FallingBlockEntity fallingblockentity = FallingBlockEntity.fall(level, pos, state);
-            this.falling(fallingblockentity);
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            BlockState camo = Blocks.AIR.defaultBlockState();
+            if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
+                camo = trapBlockEntity.getCamoState();
+            }
+            level.removeBlock(pos, false);
+            FallingTrapEntity entity = new FallingTrapEntity(ModEntities.FALLING_TRAP_ENTITY.get(), level);
+            entity.setCamoState(camo);
+            level.addFreshEntity(entity);
         }
-    }
-
-    @Override
-    protected void falling(FallingBlockEntity entity) {
-        BlockEntity blockEntity = entity.level().getBlockEntity(entity.blockPosition());
-        if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
-//            BlockState camo = trapBlockEntity.getCamoState();
-            trapBlockEntity.saveWithFullMetadata(entity.level().registryAccess());
-        }
-        super.falling(entity);
     }
 
     public boolean isGroupPowered(Level level, BlockPos startPos) {
