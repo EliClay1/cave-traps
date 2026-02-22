@@ -1,5 +1,8 @@
 package com.displace.cavetraps;
 
+import com.displace.cavetraps.testing.ModBlockEntities;
+import com.displace.cavetraps.testing.TestRenderBlockEntity;
+import com.displace.cavetraps.testing.blockentityrendering.TestRenderBER;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -28,5 +31,10 @@ public class CaveTrapsClient {
         // Some client setup code
         CaveTraps.LOGGER.info("HELLO FROM CLIENT SETUP");
         CaveTraps.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+    }
+
+    @SubscribeEvent
+    public static void registerBlockEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(ModBlockEntities.TEST_RENDER_BE.get(), context -> new TestRenderBER());
     }
 }
