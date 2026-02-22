@@ -16,7 +16,7 @@ public class FallingTrapEntity extends FallingBlockEntity {
         super(entityType, level);
     }
 
-    public static FallingTrapEntity spawn(EntityType<? extends FallingBlockEntity> entityType, Level level, BlockPos pos, BlockState camoState) {
+    public static FallingTrapEntity spawn(EntityType<? extends FallingBlockEntity> entityType, Level level, BlockPos pos, BlockState originalState, BlockState camoState) {
         FallingTrapEntity trapEntity = new FallingTrapEntity(entityType, level);
 
         // gets the coordinates of where the block should be created.
@@ -30,6 +30,9 @@ public class FallingTrapEntity extends FallingBlockEntity {
         trapEntity.zo = z;
 
         trapEntity.setStartPos(pos);
+
+        // supposedly this is how it works with normal falling blocks...
+        level.setBlock(pos, originalState.getFluidState().createLegacyBlock(), 3);
 
         trapEntity.setCamoState(camoState);
         level.addFreshEntity(trapEntity);
