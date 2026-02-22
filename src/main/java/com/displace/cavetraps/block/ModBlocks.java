@@ -1,12 +1,10 @@
 package com.displace.cavetraps.block;
 
 import com.displace.cavetraps.CaveTraps;
-import com.displace.cavetraps.testing.TestRenderBlock;
+import com.displace.cavetraps.testing.TestRenderEntityBlock;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.ColoredFallingBlock;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
@@ -21,7 +19,7 @@ public class ModBlocks {
             ));
 
     public static final DeferredBlock<Block> TEST_RENDER_BLOCK = BLOCKS.register("test_render_block", registryName -> (
-            new TestRenderBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName)))
+            new TestRenderEntityBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName)))
             ));
 
     // registers the Deferred register above. Passes into event bus.
