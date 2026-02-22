@@ -7,6 +7,8 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,22 +16,32 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
-public class TestRenderBlockEntity extends BlockEntity {
-    private int value;
+public class TestBlockEntity extends BlockEntity {
+    private ItemStack stack = ItemStack.EMPTY;
+    private static float angle;
 
-    public TestRenderBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.TEST_RENDER_BE.get(), pos, blockState);
+    public TestBlockEntity(BlockPos pos, BlockState blockState) {
+        super(ModBlockEntities.TEST_BLOCK_ENTITY.get(), pos, blockState);
+        this.stack = new ItemStack(Items.DIAMOND_PICKAXE);
     }
 
-    public int getValue() {
-        return this.value;
+    public float getAngle() {
+        return angle;
+    }
+
+    public ItemStack getStack() {
+        return stack;
+    }
+
+    public void setStack(ItemStack stack) {
+        this.stack = stack;
+        setChanged();
     }
 
     // this seems to be where we load additional state values. In this case we are loading this private value int above.
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        this.value = input.getIntOr("value", 0);
     }
 
     // and this looks like it adds the option to save additional values. So there isn't a limit to how many
@@ -37,7 +49,6 @@ public class TestRenderBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putInt("value", this.value);
     }
 
     // a place for values to be reset when the block gets removed. This doesn't seem like it would be used on something
@@ -45,11 +56,12 @@ public class TestRenderBlockEntity extends BlockEntity {
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
-        this.value = 0;
     }
 
     // logic for the block ticking should be happening here. It isn't required, but it's good practice.
-    public static void tick(Level level, BlockPos pos, BlockState state, TestRenderBlockEntity blockEntity) {
+    public static void tick(Level level, BlockPos pos, BlockState state, TestBlockEntity blockEntity) {
+        angle += 2.0F; // degrees per tick
+        if (angle >= 360.0F) angle -= 360.0F;
     }
 
 

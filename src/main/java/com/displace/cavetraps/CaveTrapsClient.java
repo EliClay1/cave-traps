@@ -1,8 +1,7 @@
 package com.displace.cavetraps;
 
 import com.displace.cavetraps.testing.ModBlockEntities;
-import com.displace.cavetraps.testing.TestRenderBlockEntity;
-import com.displace.cavetraps.testing.blockentityrendering.TestRenderBER;
+import com.displace.cavetraps.testing.TestBER;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -35,6 +34,6 @@ public class CaveTrapsClient {
 
     @SubscribeEvent
     public static void registerBlockEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(ModBlockEntities.TEST_RENDER_BE.get(), context -> new TestRenderBER());
+        event.registerBlockEntityRenderer(ModBlockEntities.TEST_BLOCK_ENTITY.get(), TestBER::new);
     }
 }
