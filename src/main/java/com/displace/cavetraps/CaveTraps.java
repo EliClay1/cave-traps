@@ -47,6 +47,7 @@ public class CaveTraps {
             .displayItems((parameters, output) -> {
                 output.accept(Items.DIAMOND); // Add the example item to the tab. For your own tabs, this method is preferred over the event
                 output.accept(ModItems.FALLING_TRAP_BLOCK_ITEM.get());
+                output.accept(ModItems.TEST_RENDER_BLOCK_ITEM.get());
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.

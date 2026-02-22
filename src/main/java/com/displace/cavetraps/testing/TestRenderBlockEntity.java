@@ -1,11 +1,18 @@
 package com.displace.cavetraps.testing;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 
 public class TestRenderBlockEntity extends BlockEntity {
     private int value;
@@ -39,6 +46,31 @@ public class TestRenderBlockEntity extends BlockEntity {
 
     // logic for the block ticking should be happening here. It isn't required, but it's good practice.
     public static void tick(Level level, BlockPos pos, BlockState state, TestRenderBlockEntity blockEntity) {
+    }
 
+
+    // Syncing functionality to ensure the client understands what the server is seeing.
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return this.saveWithoutMetadata(registries);
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        super.handleUpdateTag(input);
+    }
+
+    // block sync happens with block updates.
+
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    // you can also run custom logic when the block updates. It can be done within this function.
+    @Override
+    public void onDataPacket(Connection net, ValueInput valueInput) {
+        super.onDataPacket(net, valueInput);
     }
 }
