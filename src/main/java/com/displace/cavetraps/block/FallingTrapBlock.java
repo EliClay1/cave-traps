@@ -1,6 +1,7 @@
 package com.displace.cavetraps.block;
 
 import com.displace.cavetraps.CaveTraps;
+import com.displace.cavetraps.blockentities.FallingTrapBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,25 +11,31 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-public class FallingTrapBlock extends FallingBlock {
+public class FallingTrapBlock extends FallingBlock implements EntityBlock {
 
     public static final Property<Boolean> STABLE = BooleanProperty.create("stable");
+    public static final Property<Boolean> HAS_CAMO = BooleanProperty.create("has_camo");
     public final int initialFallTime = 10;
 
     public FallingTrapBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.getStateDefinition().any().setValue(STABLE, true));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(HAS_CAMO, true));
     }
 
     @Override
@@ -117,5 +124,11 @@ public class FallingTrapBlock extends FallingBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(STABLE);
+        builder.add(HAS_CAMO);
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new FallingTrapBlockEntity(blockPos, blockState);
     }
 }

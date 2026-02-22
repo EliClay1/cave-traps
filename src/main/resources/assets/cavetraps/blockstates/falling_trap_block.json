@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "cavetraps:block/falling_trap_block" }
+  }
+}

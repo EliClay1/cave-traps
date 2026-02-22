@@ -1,5 +1,6 @@
 package com.displace.cavetraps.testing;
 
+import com.displace.cavetraps.blockentities.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;

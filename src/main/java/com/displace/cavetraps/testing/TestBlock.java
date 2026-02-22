@@ -1,11 +1,11 @@
 package com.displace.cavetraps.testing;
 
+import com.displace.cavetraps.blockentities.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -27,9 +27,10 @@ public class TestBlock extends Block implements EntityBlock {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
     }
 
+    @SuppressWarnings("unchecked")
     private static <E extends BlockEntity, A extends BlockEntity> @Nullable BlockEntityTicker<A> createTickerHelper(
             BlockEntityType<A> type, BlockEntityType<E> checkedType, BlockEntityTicker<? super E> ticker) {
-        return checkedType == type ? (BlockEntityTicker<A>) ticker: null;
+        return checkedType == type ? (BlockEntityTicker<A>) ticker : null;
         // TODO - fix this unchecked operation. Figure out how to check it.
     }
 
