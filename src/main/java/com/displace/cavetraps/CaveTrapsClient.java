@@ -1,7 +1,5 @@
 package com.displace.cavetraps;
 
-import com.displace.cavetraps.client.renderer.FallingTrapBlockRenderer;
-import com.displace.cavetraps.entity.ModBlockEntities;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
