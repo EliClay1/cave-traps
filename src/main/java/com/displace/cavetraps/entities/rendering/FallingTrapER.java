@@ -19,12 +19,10 @@ public class FallingTrapER extends EntityRenderer<FallingTrapEntity, FallingTrap
 
     public FallingTrapER(EntityRendererProvider.Context context) {
         super(context);
-//        CaveTraps.LOGGER.info("[FallingTrapER] constructed");
     }
 
     @Override
     public FallingTrapEntityRenderState createRenderState() {
-//        CaveTraps.LOGGER.info("[FallingTrapER] createRenderState()");
         return new FallingTrapEntityRenderState();
 
     }
@@ -34,11 +32,11 @@ public class FallingTrapER extends EntityRenderer<FallingTrapEntity, FallingTrap
         // rendering is failing here.
 
 
-        CaveTraps.LOGGER.info("[FallingTrapER] extractRenderState camo={}", entity.getCamoState());
+//        CaveTraps.LOGGER.info("[FallingTrapER] extractRenderState camo={}", entity.getCamoState());
 
         super.extractRenderState(entity, reusedState, partialTick);
-//        reusedState.camoState = entity.getCamoState();
-        reusedState.camoState = Blocks.SAND.defaultBlockState();
+        reusedState.camoState = entity.getCamoState();
+//        reusedState.camoState = Blocks.SAND.defaultBlockState();
         reusedState.customLight = reusedState.lightCoords;
     }
 
