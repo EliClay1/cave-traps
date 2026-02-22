@@ -2,12 +2,14 @@ package com.displace.cavetraps.entities.rendering;
 
 import com.displace.cavetraps.entities.FallingTrapEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -26,6 +28,7 @@ public class FallingTrapER extends EntityRenderer<FallingTrapEntity, FallingTrap
     public void extractRenderState(FallingTrapEntity entity, FallingTrapEntityRenderState reusedState, float partialTick) {
         super.extractRenderState(entity, reusedState, partialTick);
         reusedState.camoState = entity.getCamoState();
+        reusedState.customLight = reusedState.lightCoords;
     }
 
     @Override
@@ -37,7 +40,8 @@ public class FallingTrapER extends EntityRenderer<FallingTrapEntity, FallingTrap
 
         poseStack.pushPose();
         int overlay = OverlayTexture.NO_OVERLAY;
-        nodeCollector.submitBlock(poseStack, camo, renderState.customLight, overlay, 0);
+        int light = renderState.customLight;
+        nodeCollector.submitBlock(poseStack, camo, light, overlay, 0);
         poseStack.popPose();
     }
 }

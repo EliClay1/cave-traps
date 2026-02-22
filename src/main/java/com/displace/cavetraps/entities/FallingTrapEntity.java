@@ -20,15 +20,13 @@ public class FallingTrapEntity extends FallingBlockEntity {
         FallingTrapEntity trapEntity = new FallingTrapEntity(entityType, level);
 
         // gets the coordinates of where the block should be created.
-        double x = pos.getX();
+        double x = pos.getX() + 0.5D;
         double y = pos.getY();
-        double z = pos.getZ();
-
+        double z = pos.getZ() + 0.5D;
         trapEntity.setPos(x, y, z);
         trapEntity.xo = x;
         trapEntity.yo = y;
         trapEntity.zo = z;
-
         trapEntity.setStartPos(pos);
 
         // supposedly this is how it works with normal falling blocks...
@@ -58,5 +56,4 @@ public class FallingTrapEntity extends FallingBlockEntity {
         super.readAdditionalSaveData(input);
         input.read("camo_state", BlockState.CODEC).ifPresent(blockState -> this.camoState = blockState);
     }
-
 }
