@@ -22,6 +22,9 @@ public class TestRenderBER implements BlockEntityRenderer<TestRenderBlockEntity,
     public void extractRenderState(TestRenderBlockEntity blockEntity, TestRenderBlockRenderState renderState, float
             partialTick, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, renderState, partialTick, cameraPosition, breakProgress);
+
+        // example of passing in some kind of external value in.
+        renderState.value = blockEntity.getValue();
     }
 
     @Override
@@ -29,4 +32,5 @@ public class TestRenderBER implements BlockEntityRenderer<TestRenderBlockEntity,
             submitNodeCollector, CameraRenderState cameraRenderState) {
 
     }
+
 }

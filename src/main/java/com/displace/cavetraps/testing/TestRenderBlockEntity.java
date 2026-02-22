@@ -21,6 +21,10 @@ public class TestRenderBlockEntity extends BlockEntity {
         super(ModBlockEntities.TEST_RENDER_BE.get(), pos, blockState);
     }
 
+    public int getValue() {
+        return this.value;
+    }
+
     // this seems to be where we load additional state values. In this case we are loading this private value int above.
     @Override
     protected void loadAdditional(ValueInput input) {
