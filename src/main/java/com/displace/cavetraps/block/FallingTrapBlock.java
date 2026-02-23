@@ -1,6 +1,5 @@
 package com.displace.cavetraps.block;
 
-import com.displace.cavetraps.CaveTraps;
 import com.displace.cavetraps.blockentities.FallingTrapBlockEntity;
 import com.displace.cavetraps.entities.FallingTrapEntity;
 import com.displace.cavetraps.entities.ModEntities;
@@ -10,7 +9,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
@@ -40,6 +39,17 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
+        if (!level.isClientSide() && !state.getValue(HAS_CAMO)) {
+            tryAcquireGroupCamo(level, pos);
+        }
+    }
+
+    @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
+        if (!level.isClientSide() && !state.getValue(HAS_CAMO)) {
+            tryAcquireGroupCamo(level, pos);
+        }
     }
 
     @Override
@@ -119,11 +129,88 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
         return false;
     }
 
+    public void tryAcquireGroupCamo(Level level, BlockPos startPos) {
+        Queue<BlockPos> queue = new LinkedList<>();
+        Set<BlockPos> visited = new HashSet<>();
+        Set<BlockPos> trapsToUpdate = new HashSet<>();
+
+        queue.add(startPos);
+        visited.add(startPos);
+
+        int MAX_SEARCH_SIZE = 2048;
+        int searchedCount = 0;
+
+        BlockState foundCamo = null;
+
+        while (!queue.isEmpty()) {
+            BlockPos currentPos = queue.poll();
+            BlockState currentState = level.getBlockState(currentPos);
+
+            if (!currentState.getValue(HAS_CAMO)) {
+                trapsToUpdate.add(currentPos);
+            }
+
+            searchedCount++;
+
+            if (foundCamo == null && currentState.getValue(HAS_CAMO)) {
+                BlockEntity be = level.getBlockEntity(currentPos);
+                if (be instanceof FallingTrapBlockEntity trapBE) {
+                    BlockState camo = trapBE.getCamoState();
+                    if (camo != null && !camo.isAir()) {
+                        foundCamo = camo;
+                    }
+                }
+            }
+
+            if (foundCamo == null) {
+                BlockPos northPos = currentPos.north();
+                BlockState northState = level.getBlockState(northPos);
+
+                if (!northState.isAir() && !(northState.getBlock() instanceof FallingTrapBlock)) {
+                    foundCamo = northState;
+                }
+            }
+
+            if (searchedCount >= MAX_SEARCH_SIZE) {
+                break;
+            }
+
+            for (Direction direction : Direction.values()) {
+                if (direction == Direction.UP || direction == Direction.DOWN) {
+                    continue;
+                }
+                BlockPos neighborPos = currentPos.relative(direction);
+                if (!visited.contains(neighborPos)) {
+                    BlockState neighborState = level.getBlockState(neighborPos);
+
+                    if (neighborState.getBlock() instanceof FallingTrapBlock) {
+                        visited.add(neighborPos);
+                        queue.add(neighborPos);
+                    }
+                }
+            }
+        }
+
+        if (foundCamo != null) {
+            for (BlockPos pos : trapsToUpdate) {
+                BlockState state = level.getBlockState(pos);
+                if (state.getBlock() instanceof FallingTrapBlock && !state.getValue(HAS_CAMO)) {
+                    BlockEntity be = level.getBlockEntity(pos);
+                    if (be instanceof FallingTrapBlockEntity trapBE) {
+                        trapBE.setCamoState(foundCamo);
+                        level.setBlockAndUpdate(pos, state.setValue(HAS_CAMO, true));
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     protected MapCodec<? extends FallingBlock> codec() {
         return null;
     }
 
+    // TODO - change the dust color. Get rid of the particle, something.
     @Override
     public int getDustColor(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
         return 0;
