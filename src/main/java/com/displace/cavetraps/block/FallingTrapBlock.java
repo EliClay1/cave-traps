@@ -206,7 +206,7 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     }
 
     @Override
-    protected MapCodec<? extends FallingBlock> codec() {
+    protected @Nullable MapCodec<? extends FallingBlock> codec() {
         return null;
     }
 
