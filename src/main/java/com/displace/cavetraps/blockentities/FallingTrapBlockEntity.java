@@ -1,6 +1,7 @@
 package com.displace.cavetraps.blockentities;
 
 import com.displace.cavetraps.block.FallingTrapBlock;
+import com.displace.cavetraps.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +21,7 @@ public class FallingTrapBlockEntity extends BlockEntity {
 
     // This is defining the default block state so that the block will always render some kind of default.
     // Realistically, this should be its own block state, but there isn't a texture yet.
-    private BlockState camoState = Blocks.AIR.defaultBlockState();
+    private BlockState camoState = ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState();
 
     public FallingTrapBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FALLING_TRAP_BLOCK_ENTITY.get(), pos, blockState);

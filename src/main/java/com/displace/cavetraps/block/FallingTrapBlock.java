@@ -83,7 +83,7 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (isFree(level.getBlockState(pos.below())) && !state.getValue(STABLE) && pos.getY() >= level.getMinY()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
-            BlockState camo = Blocks.AIR.defaultBlockState();
+            BlockState camo = ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState();
             if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
                 camo = trapBlockEntity.getCamoState();
             }

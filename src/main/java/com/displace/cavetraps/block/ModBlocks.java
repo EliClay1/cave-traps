@@ -15,15 +15,15 @@ public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(CaveTraps.MODID);
 
     public static final DeferredBlock<FallingBlock> FALLING_TRAP_BLOCK = BLOCKS.register("falling_trap_block", registryName -> (
-            new FallingTrapBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName)))
+            new FallingTrapBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName)).noOcclusion())
         ));
 
     public static final DeferredBlock<Block> TEST_BLOCK = BLOCKS.register("test_block", registryName -> (
             new TestBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName)))
         ));
 
-    public static final DeferredBlock<ExplosiveTrapBlock> EXPLOSIVE_TRAP = BLOCKS.register("explosive_trap", identifier -> (
-            new ExplosiveTrapBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)))
+    public static final DeferredBlock<ExplosiveTrapBlock> EXPLOSIVE_TRAP_BLOCK = BLOCKS.register("explosive_trap_block", identifier -> (
+            new ExplosiveTrapBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)).noOcclusion())
             ));
 
     // registers the Deferred register above. Passes into event bus.

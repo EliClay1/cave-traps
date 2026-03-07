@@ -16,6 +16,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = CaveTraps.MODID, dist = Dist.CLIENT)
@@ -42,7 +43,13 @@ public class CaveTrapsClient {
         event.registerBlockEntityRenderer(ModBlockEntities.TEST_BLOCK_ENTITY.get(), TestBER::new);
         event.registerBlockEntityRenderer(ModBlockEntities.FALLING_TRAP_BLOCK_ENTITY.get(), FallingTrapBER::new);
 
+        // block entities with GeckoLib
+        event.registerBlockEntityRenderer(ModBlockEntities.EXPLOSIVE_TRAP_BLOCK_ENTITY.get(),
+                context -> new GeoBlockRenderer<>(ModBlockEntities.EXPLOSIVE_TRAP_BLOCK_ENTITY.get()));
+
         // entities
         event.registerEntityRenderer(ModEntities.FALLING_TRAP_ENTITY.get(), FallingTrapER::new);
+
+
     }
 }

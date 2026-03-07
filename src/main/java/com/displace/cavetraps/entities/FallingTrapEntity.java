@@ -1,6 +1,7 @@
 package com.displace.cavetraps.entities;
 
 import com.displace.cavetraps.CaveTraps;
+import com.displace.cavetraps.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -26,7 +27,7 @@ public class FallingTrapEntity extends FallingBlockEntity {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(DATA_CAMO_STATE, Blocks.AIR.defaultBlockState());
+        builder.define(DATA_CAMO_STATE, ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState());
     }
 
     public static FallingTrapEntity spawn(EntityType<? extends FallingBlockEntity> entityType, Level level, BlockPos pos, BlockState originalState, BlockState camoState) {

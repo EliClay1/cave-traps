@@ -23,7 +23,7 @@ public class ModItems {
     ));
 
     public static final DeferredItem<Item> EXPLOSIVE_TRAP_ITEM = ITEMS.registerItem("explosive_trap",
-            properties -> new BlockItem(ModBlocks.EXPLOSIVE_TRAP.get(), properties));
+            properties -> new BlockItem(ModBlocks.EXPLOSIVE_TRAP_BLOCK.get(), properties));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
