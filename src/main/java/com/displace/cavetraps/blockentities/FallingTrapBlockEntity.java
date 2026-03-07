@@ -21,7 +21,10 @@ public class FallingTrapBlockEntity extends BlockEntity {
 
     // This is defining the default block state so that the block will always render some kind of default.
     // Realistically, this should be its own block state, but there isn't a texture yet.
-    private BlockState camoState = ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState();
+
+    // defaults to this, but that means that if it's air, it will default to air when "camo-ed". This may
+    //   be easy to fix if we force the camo state to be disabled when it lands.
+    private BlockState camoState = Blocks.AIR.defaultBlockState();
 
     public FallingTrapBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FALLING_TRAP_BLOCK_ENTITY.get(), pos, blockState);
@@ -55,12 +58,6 @@ public class FallingTrapBlockEntity extends BlockEntity {
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         input.read("camo_state", BlockState.CODEC).ifPresent(blockState -> this.camoState = blockState);
-        if (level != null) {
-            boolean hasCamo = this.camoState != null && !this.camoState.isAir();
-            level.setBlock(getBlockPos(),
-                    getBlockState().setValue(FallingTrapBlock.HAS_CAMO, hasCamo),
-                    Block.UPDATE_CLIENTS);
-        }
     }
 
     // Next up is network syncing. This is especially important because the server can see and process everything,

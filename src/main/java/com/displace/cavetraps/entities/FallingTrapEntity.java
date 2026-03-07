@@ -3,6 +3,7 @@ package com.displace.cavetraps.entities;
 import com.displace.cavetraps.CaveTraps;
 import com.displace.cavetraps.block.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;

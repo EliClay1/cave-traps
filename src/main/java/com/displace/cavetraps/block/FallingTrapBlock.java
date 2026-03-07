@@ -1,11 +1,13 @@
 package com.displace.cavetraps.block;
 
+import com.displace.cavetraps.CaveTraps;
 import com.displace.cavetraps.blockentities.FallingTrapBlockEntity;
 import com.displace.cavetraps.entities.FallingTrapEntity;
 import com.displace.cavetraps.entities.ModEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -44,6 +46,7 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
         }
     }
 
+    // this code seems to run on the world reload. Let's test it.
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
@@ -91,7 +94,8 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
                 camo = state;
             }
             level.removeBlockEntity(pos);
-            FallingTrapEntity.spawn(ModEntities.FALLING_TRAP_ENTITY.get(), level, pos, state, camo);
+            BlockState landingState = state.setValue(HAS_CAMO, false);
+            FallingTrapEntity.spawn(ModEntities.FALLING_TRAP_ENTITY.get(), level, pos, landingState, camo);
         }
     }
 
