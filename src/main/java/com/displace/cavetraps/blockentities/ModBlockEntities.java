@@ -26,6 +26,13 @@ public class ModBlockEntities {
             )
     );
 
+    public static final Supplier<BlockEntityType<ExplosiveTrapBlockEntity>> EXPLOSIVE_TRAP_BLOCK_ENTITY = BLOCK_ENTITIES.register(
+            "explosive_trap_block_entity", identifier -> new BlockEntityType<>(
+                    ExplosiveTrapBlockEntity::new, false, ModBlocks.EXPLOSIVE_TRAP.get()
+            )
+    );
+
+
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);
     }

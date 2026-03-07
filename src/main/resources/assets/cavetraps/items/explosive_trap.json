@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "cavetraps:block/explosive_trap"
+  }
+}

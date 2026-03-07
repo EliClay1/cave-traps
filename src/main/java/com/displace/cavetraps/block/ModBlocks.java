@@ -22,7 +22,9 @@ public class ModBlocks {
             new TestBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, registryName)))
         ));
 
-    public static final DeferredBlock<Block> EXPLOSIVE_TRAP = BLOCKS.registerBlock("explosive_trap", Block::new);
+    public static final DeferredBlock<ExplosiveTrapBlock> EXPLOSIVE_TRAP = BLOCKS.register("explosive_trap", identifier -> (
+            new ExplosiveTrapBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)))
+            ));
 
     // registers the Deferred register above. Passes into event bus.
     public static void register(IEventBus eventBus) {
