@@ -1,5 +1,6 @@
 package com.displace.cavetraps.blockentities.rendering;
 
+import com.displace.cavetraps.block.FallingTrapBlock;
 import com.displace.cavetraps.blockentities.FallingTrapBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -29,8 +30,16 @@ public class FallingTrapBER implements BlockEntityRenderer<FallingTrapBlockEntit
     @Override
     public void extractRenderState(FallingTrapBlockEntity blockEntity, FallingTrapRenderState renderState, float partialTick, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, renderState, partialTick, cameraPosition, breakProgress);
-        BlockState camo = blockEntity.getCamoState();
-        renderState.camoState = (camo != null) ? camo : Blocks.AIR.defaultBlockState();
+        BlockState blockState = blockEntity.getBlockState();
+
+        // Only pull the camo state if the block is currently camouflaged
+        if (blockState.hasProperty(FallingTrapBlock.HAS_CAMO) && blockState.getValue(FallingTrapBlock.HAS_CAMO)) {
+            BlockState camo = blockEntity.getCamoState();
+            renderState.camoState = camo != null ? camo : Blocks.AIR.defaultBlockState();
+        } else {
+            renderState.camoState = Blocks.AIR.defaultBlockState();
+        }
+
         if (blockEntity.getLevel() != null) {
             renderState.customLight = LevelRenderer.getLightColor(blockEntity.getLevel(), blockEntity.getBlockPos());
         } else {
