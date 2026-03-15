@@ -1,7 +1,7 @@
 package com.displace.cavetraps.blockentities;
 
+import com.displace.cavetraps.CaveTraps;
 import com.displace.cavetraps.block.FallingTrapBlock;
-import com.displace.cavetraps.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -22,12 +22,20 @@ public class FallingTrapBlockEntity extends BlockEntity {
     // This is defining the default block state so that the block will always render some kind of default.
     // Realistically, this should be its own block state, but there isn't a texture yet.
 
-    // defaults to this, but that means that if it's air, it will default to air when "camo-ed". This may
-    //   be easy to fix if we force the camo state to be disabled when it lands.
     private BlockState camoState = Blocks.AIR.defaultBlockState();
+    private boolean hasBeenCamouflaged = false;
 
     public FallingTrapBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FALLING_TRAP_BLOCK_ENTITY.get(), pos, blockState);
+    }
+
+    public boolean getHasBeenTriggered() {
+        return this.hasBeenCamouflaged;
+    }
+
+    public void setHasBeenTriggered(boolean triggered) {
+        this.hasBeenCamouflaged = triggered;
+        setChanged();
     }
 
     // These are setters and getter for the camo state so that other classes can access it.
@@ -36,6 +44,7 @@ public class FallingTrapBlockEntity extends BlockEntity {
     }
 
     public void setCamoState(BlockState camo) {
+        hasBeenCamouflaged = true;
         this.camoState = camo;
         if (level != null) {
             boolean hasCamo = camo != null && !camo.isAir();
@@ -52,12 +61,14 @@ public class FallingTrapBlockEntity extends BlockEntity {
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.store("camo_state", BlockState.CODEC, this.camoState);
+        output.putBoolean("has_been_camouflaged", this.hasBeenCamouflaged);
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         input.read("camo_state", BlockState.CODEC).ifPresent(blockState -> this.camoState = blockState);
+        this.hasBeenCamouflaged = input.getBooleanOr("has_been_camouflaged", false);
     }
 
     // Next up is network syncing. This is especially important because the server can see and process everything,

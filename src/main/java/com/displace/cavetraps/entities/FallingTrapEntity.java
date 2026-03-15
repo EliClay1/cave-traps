@@ -10,7 +10,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -19,6 +18,7 @@ import java.lang.reflect.Field;
 
 public class FallingTrapEntity extends FallingBlockEntity {
     private static final EntityDataAccessor<BlockState> DATA_CAMO_STATE = SynchedEntityData.defineId(FallingTrapEntity.class, EntityDataSerializers.BLOCK_STATE);
+    private static final EntityDataAccessor<Boolean> DATA_BOOLEAN_STATE = SynchedEntityData.defineId(FallingTrapEntity.class, EntityDataSerializers.BOOLEAN);
 
     public FallingTrapEntity(EntityType<? extends FallingBlockEntity> entityType, Level level) {
         super(entityType, level);
@@ -29,9 +29,10 @@ public class FallingTrapEntity extends FallingBlockEntity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_CAMO_STATE, ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState());
+        builder.define(DATA_BOOLEAN_STATE, false);
     }
 
-    public static FallingTrapEntity spawn(EntityType<? extends FallingBlockEntity> entityType, Level level, BlockPos pos, BlockState originalState, BlockState camoState) {
+    public static FallingTrapEntity spawn(EntityType<? extends FallingBlockEntity> entityType, Level level, BlockPos pos, BlockState originalState, BlockState camoState, CompoundTag customData) {
         FallingTrapEntity trapEntity = new FallingTrapEntity(entityType, level);
 
         // gets the coordinates of where the block should be created.
@@ -43,6 +44,11 @@ public class FallingTrapEntity extends FallingBlockEntity {
         trapEntity.yo = y;
         trapEntity.zo = z;
         trapEntity.setStartPos(pos);
+
+        if (customData != null && !customData.isEmpty()) {
+            trapEntity.blockData = customData;
+            CaveTraps.LOGGER.info("2. ENTITY SPAWN: received customData = {}", customData);
+        }
 
         // using reflection to modify the field.
         try {
@@ -68,16 +74,26 @@ public class FallingTrapEntity extends FallingBlockEntity {
         this.getEntityData().set(DATA_CAMO_STATE, camoState);
     }
 
+    public boolean getBooleanState() {
+        return this.getEntityData().get(DATA_BOOLEAN_STATE);
+    }
+
+    public void setBooleanState(boolean booleanState) {
+        this.getEntityData().set(DATA_BOOLEAN_STATE, booleanState);
+    }
+
     // network syncing
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.store("camo_state", BlockState.CODEC, this.getCamoState());
+        output.putBoolean("has_been_camouflaged", this.getBooleanState());
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
         input.read("camo_state", BlockState.CODEC).ifPresent(this::setCamoState);
+        this.setBooleanState(input.getBooleanOr("has_been_camouflaged", false));
     }
 }

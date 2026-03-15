@@ -87,15 +87,17 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
         if (isFree(level.getBlockState(pos.below())) && !state.getValue(STABLE) && pos.getY() >= level.getMinY()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             BlockState camo = ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState();
+            CompoundTag customData = new CompoundTag();
             if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
                 camo = trapBlockEntity.getCamoState();
+                customData.putBoolean("has_been_camouflaged", trapBlockEntity.getHasBeenTriggered());
             }
             if (camo == null || camo.isAir()) {
                 camo = state;
             }
             level.removeBlockEntity(pos);
             BlockState landingState = state.setValue(HAS_CAMO, false);
-            FallingTrapEntity.spawn(ModEntities.FALLING_TRAP_ENTITY.get(), level, pos, landingState, camo);
+            FallingTrapEntity.spawn(ModEntities.FALLING_TRAP_ENTITY.get(), level, pos, landingState, camo, customData);
         }
     }
 
@@ -201,8 +203,11 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
                 if (state.getBlock() instanceof FallingTrapBlock && !state.getValue(HAS_CAMO)) {
                     BlockEntity be = level.getBlockEntity(pos);
                     if (be instanceof FallingTrapBlockEntity trapBE) {
-                        trapBE.setCamoState(foundCamo);
-                        level.setBlockAndUpdate(pos, state.setValue(HAS_CAMO, true));
+                        if (!trapBE.getHasBeenTriggered()) {
+                            trapBE.setCamoState(foundCamo);
+                            trapBE.setHasBeenTriggered(true);
+                            level.setBlockAndUpdate(pos, state.setValue(HAS_CAMO, true));
+                        }
                     }
                 }
             }
