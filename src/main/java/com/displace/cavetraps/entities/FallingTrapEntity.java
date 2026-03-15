@@ -36,9 +36,9 @@ public class FallingTrapEntity extends FallingBlockEntity {
         FallingTrapEntity trapEntity = new FallingTrapEntity(entityType, level);
 
         // gets the coordinates of where the block should be created.
-        double x = pos.getX();
+        double x = pos.getX() + 0.5D;
         double y = pos.getY();
-        double z = pos.getZ();
+        double z = pos.getZ() + 0.5D;
         trapEntity.setPos(x, y, z);
         trapEntity.xo = x;
         trapEntity.yo = y;
@@ -47,7 +47,6 @@ public class FallingTrapEntity extends FallingBlockEntity {
 
         if (customData != null && !customData.isEmpty()) {
             trapEntity.blockData = customData;
-            CaveTraps.LOGGER.info("2. ENTITY SPAWN: received customData = {}", customData);
         }
 
         // using reflection to modify the field.

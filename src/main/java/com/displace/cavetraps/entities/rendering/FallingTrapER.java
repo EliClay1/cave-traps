@@ -48,6 +48,7 @@ public class FallingTrapER extends EntityRenderer<FallingTrapEntity, FallingTrap
         }
 
         poseStack.pushPose();
+        poseStack.translate(-0.5D, 0.0D, -0.5D);
         int overlay = OverlayTexture.NO_OVERLAY;
         int light = renderState.customLight;
         nodeCollector.submitBlock(poseStack, camo, light, overlay, 0);
