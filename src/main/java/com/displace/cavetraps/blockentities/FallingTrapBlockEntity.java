@@ -61,14 +61,8 @@ public class FallingTrapBlockEntity extends BlockEntity {
 
         if (level != null && !level.isClientSide()) {
             boolean hasCamo = camo != null && !camo.isAir();
-
-            // 1. Update the block state property
             level.setBlock(getBlockPos(), getBlockState().setValue(FallingTrapBlock.HAS_CAMO, hasCamo), Block.UPDATE_CLIENTS);
-
-            // 2. Send the updated NBT to the client so the client knows what the camo is
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
-
-            // 3. Mark the block entity as changed so it saves to disk
             setChanged();
         }
     }
