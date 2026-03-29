@@ -46,7 +46,6 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
         }
     }
 
-    // this code seems to run on the world reload. Let's test it.
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
@@ -88,15 +87,16 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             BlockState camo = ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState();
             CompoundTag customData = new CompoundTag();
+
             if (blockEntity instanceof FallingTrapBlockEntity trapBlockEntity) {
                 camo = trapBlockEntity.getCamoState();
-                customData.putBoolean("has_been_camouflaged", trapBlockEntity.getHasBeenTriggered());
+                customData = trapBlockEntity.saveWithFullMetadata(level.registryAccess());
             }
             if (camo == null || camo.isAir()) {
                 camo = state;
             }
             level.removeBlockEntity(pos);
-            BlockState landingState = state.setValue(STABLE, true).setValue(HAS_CAMO, false);
+            BlockState landingState = state.setValue(STABLE, true);
             FallingTrapEntity.spawn(ModEntities.FALLING_TRAP_ENTITY.get(), level, pos, landingState, camo, customData);
         }
     }
