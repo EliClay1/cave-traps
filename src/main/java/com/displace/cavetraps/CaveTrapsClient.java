@@ -57,6 +57,7 @@ public class CaveTrapsClient {
         event.registerEntityRenderer(ModEntities.FALLING_TRAP_ENTITY.get(), FallingTrapER::new);
     }
 
+
     @SubscribeEvent
     public static void registerEntityRenderers(ModelEvent.ModifyBakingResult event) {
         Block fallingTrapBlock = ModBlocks.FALLING_TRAP_BLOCK.get();

@@ -22,8 +22,8 @@ public class ModItems {
             new BlockItem(ModBlocks.TEST_BLOCK.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName)))
     ));
 
-    public static final DeferredItem<Item> EXPLOSIVE_TRAP_ITEM = ITEMS.registerItem("explosive_trap",
-            properties -> new BlockItem(ModBlocks.EXPLOSIVE_TRAP_BLOCK.get(), properties));
+    public static final DeferredItem<Item> EXPLOSIVE_TRAP_ITEM = ITEMS.registerItem("explosive_trap_block",
+            properties -> new ExplosiveTrapBlockItem(ModBlocks.EXPLOSIVE_TRAP_BLOCK.get(), properties));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

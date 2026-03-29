@@ -1,6 +1,9 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "cavetraps:block/explosive_trap_block"
+    "type": "minecraft:special",
+    "base": "cavetraps:item/explosive_trap_block",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
   }
 }
