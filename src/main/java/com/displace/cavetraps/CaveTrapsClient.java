@@ -2,14 +2,11 @@ package com.displace.cavetraps;
 
 import com.displace.cavetraps.block.ModBlocks;
 import com.displace.cavetraps.blockentities.ModBlockEntities;
-import com.displace.cavetraps.blockentities.rendering.FallingTrapBER;
 import com.displace.cavetraps.entities.ModEntities;
 import com.displace.cavetraps.entities.rendering.FallingTrapER;
-import com.displace.cavetraps.entities.rendering.FallingTrapEntityRenderState;
 import com.displace.cavetraps.rendering.CamoBlockStateModel;
 import com.displace.cavetraps.testing.TestBER;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
@@ -51,7 +48,6 @@ public class CaveTrapsClient {
 
         // block entities
         event.registerBlockEntityRenderer(ModBlockEntities.TEST_BLOCK_ENTITY.get(), TestBER::new);
-        event.registerBlockEntityRenderer(ModBlockEntities.FALLING_TRAP_BLOCK_ENTITY.get(), FallingTrapBER::new);
 
         // block entities with GeckoLib
         event.registerBlockEntityRenderer(ModBlockEntities.EXPLOSIVE_TRAP_BLOCK_ENTITY.get(),

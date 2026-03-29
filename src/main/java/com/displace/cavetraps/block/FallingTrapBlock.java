@@ -247,9 +247,6 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
 
     @Override
     protected RenderShape getRenderShape(BlockState state) {
-        if (!state.getValue(HAS_CAMO)) {
-            return RenderShape.MODEL;
-        }
-        return RenderShape.INVISIBLE;
+        return RenderShape.MODEL;
     }
 }

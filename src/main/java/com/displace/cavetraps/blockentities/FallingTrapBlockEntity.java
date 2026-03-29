@@ -5,6 +5,7 @@ import com.displace.cavetraps.block.FallingTrapBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -57,16 +58,21 @@ public class FallingTrapBlockEntity extends BlockEntity {
     public void setCamoState(BlockState camo) {
         hasBeenCamouflaged = true;
         this.camoState = camo;
-        if (level != null) {
+
+        if (level != null && !level.isClientSide()) {
             boolean hasCamo = camo != null && !camo.isAir();
-            level.setBlock(getBlockPos(),
-                    getBlockState().setValue(FallingTrapBlock.HAS_CAMO, hasCamo),
-                    Block.UPDATE_CLIENTS);
-            requestModelDataUpdate();
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+
+            // 1. Update the block state property
+            level.setBlock(getBlockPos(), getBlockState().setValue(FallingTrapBlock.HAS_CAMO, hasCamo), Block.UPDATE_CLIENTS);
+
+            // 2. Send the updated NBT to the client so the client knows what the camo is
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+
+            // 3. Mark the block entity as changed so it saves to disk
+            setChanged();
         }
-        setChanged();
     }
+
     // this saves the block state data so it can be references by other classes.
     // It uses a CODEC because this is doing stuff on the network level.
     @Override
@@ -93,5 +99,15 @@ public class FallingTrapBlockEntity extends BlockEntity {
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void onDataPacket(Connection net, ValueInput valueInput) {
+        super.onDataPacket(net, valueInput);
+
+        if (level != null && level.isClientSide()) {
+            requestModelDataUpdate();
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+        }
     }
 }
