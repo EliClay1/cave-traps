@@ -33,8 +33,8 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
     }
 
     @Override
+    @SuppressWarnings({"deprecation"})
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        // TODO: Fix this deprecated function.
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
