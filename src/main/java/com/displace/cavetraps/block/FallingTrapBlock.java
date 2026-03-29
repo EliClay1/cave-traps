@@ -42,7 +42,8 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         if (!level.isClientSide() && !state.getValue(HAS_CAMO)) {
-            tryAcquireGroupCamo(level, pos);
+            level.scheduleTick(pos, this, 1);
+//            tryAcquireGroupCamo(level, pos);
         }
     }
 
@@ -50,7 +51,8 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
         if (!level.isClientSide() && !state.getValue(HAS_CAMO)) {
-            tryAcquireGroupCamo(level, pos);
+//            tryAcquireGroupCamo(level, pos);
+            level.scheduleTick(pos, this, 1);
         }
     }
 
@@ -92,12 +94,21 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
                 camo = trapBlockEntity.getCamoState();
                 customData = trapBlockEntity.saveWithFullMetadata(level.registryAccess());
             }
+
             if (camo == null || camo.isAir()) {
                 camo = state;
             }
+
             level.removeBlockEntity(pos);
-            BlockState landingState = state.setValue(STABLE, true);
+
+            BlockState landingState = state.setValue(STABLE, true).setValue(HAS_CAMO, false);
             FallingTrapEntity.spawn(ModEntities.FALLING_TRAP_ENTITY.get(), level, pos, landingState, camo, customData);
+
+        } else if (!state.getValue(HAS_CAMO)) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof FallingTrapBlockEntity trapBE && !trapBE.getHasBeenTriggered()) {
+                tryAcquireGroupCamo(level, pos);
+            }
         }
     }
 
