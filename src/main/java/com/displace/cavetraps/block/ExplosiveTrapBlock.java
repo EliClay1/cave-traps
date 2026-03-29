@@ -41,10 +41,10 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
         builder.add(FACING, TRIGGERED);
     }
 
-    @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
-    }
+//    @Override
+//    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+//        return SHAPE;
+//    }
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
@@ -75,13 +75,13 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
-//    @Override
-//    public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-//        if (!level.isClientSide()) {
-//            activate(level, pos, state);
-//        }
-//        super.stepOn(level, pos, state, entity);
-//    }
+    @Override
+    public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
+        if (!level.isClientSide()) {
+            activate(level, pos, state);
+        }
+        super.stepOn(level, pos, state, entity);
+    }
 
     private void activate(Level level, BlockPos pos, BlockState state) {
         if (state.getValue(TRIGGERED)) {
@@ -91,7 +91,7 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
         if (level.getBlockEntity(pos) instanceof ExplosiveTrapBlockEntity trap) {
             trap.activate();
         }
-        level.scheduleTick(pos, this, 60);
+        level.scheduleTick(pos, this, 35);
     }
 
     @Override

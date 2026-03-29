@@ -4,7 +4,6 @@ import com.displace.cavetraps.block.ExplosiveTrapBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animatable.manager.AnimatableManager;
@@ -26,13 +25,9 @@ public class ExplosiveTrapBlockEntity extends BlockEntity implements GeoBlockEnt
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(state -> {
             boolean isTriggered = false;
-
-            // Check the current block state to see if the block has been triggered
             if (this.getBlockState().hasProperty(ExplosiveTrapBlock.TRIGGERED)) {
                 isTriggered = this.getBlockState().getValue(ExplosiveTrapBlock.TRIGGERED);
             }
-
-            // Play the activated animation if triggered, otherwise sit idle
             return state.setAndContinue(isTriggered ? ACTIVATED : IDLE);
         }));
     }
