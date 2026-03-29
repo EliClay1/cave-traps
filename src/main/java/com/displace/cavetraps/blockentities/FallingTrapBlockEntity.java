@@ -14,9 +14,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelProperty;
 import org.jspecify.annotations.Nullable;
 
 public class FallingTrapBlockEntity extends BlockEntity {
+    public static final ModelProperty<BlockState> CAMO_PROPERTY = new ModelProperty<>();
+
     // this is still a test of sorts, so I am going to document the process with comments.
 
     // This is defining the default block state so that the block will always render some kind of default.
@@ -43,6 +47,13 @@ public class FallingTrapBlockEntity extends BlockEntity {
         return this.camoState;
     }
 
+    @Override
+    public ModelData getModelData() {
+        return ModelData.builder()
+                .with(CAMO_PROPERTY, this.camoState)
+                .build();
+    }
+
     public void setCamoState(BlockState camo) {
         hasBeenCamouflaged = true;
         this.camoState = camo;
@@ -51,10 +62,11 @@ public class FallingTrapBlockEntity extends BlockEntity {
             level.setBlock(getBlockPos(),
                     getBlockState().setValue(FallingTrapBlock.HAS_CAMO, hasCamo),
                     Block.UPDATE_CLIENTS);
+            requestModelDataUpdate();
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
         setChanged();
     }
-
     // this saves the block state data so it can be references by other classes.
     // It uses a CODEC because this is doing stuff on the network level.
     @Override

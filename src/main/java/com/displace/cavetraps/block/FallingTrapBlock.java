@@ -43,7 +43,6 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         if (!level.isClientSide() && !state.getValue(HAS_CAMO)) {
             level.scheduleTick(pos, this, 1);
-//            tryAcquireGroupCamo(level, pos);
         }
     }
 
@@ -51,7 +50,6 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
         if (!level.isClientSide() && !state.getValue(HAS_CAMO)) {
-//            tryAcquireGroupCamo(level, pos);
             level.scheduleTick(pos, this, 1);
         }
     }
