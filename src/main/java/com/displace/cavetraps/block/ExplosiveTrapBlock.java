@@ -22,14 +22,25 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 public class ExplosiveTrapBlock extends Block implements EntityBlock {
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final Property<Boolean> TRIGGERED = BooleanProperty.create("triggered");
-    private static final VoxelShape COLLISION_UNTRIGGERED = Block.box(4, 12, 4, 12, 14, 12);
-    private static final VoxelShape COLLISION_TRIGGERED   = Block.box(4, 12, 4, 12, 13, 12);
+    // The base wooden box: spans the entire 16x16 block area up to a full block height (Y=16)
+    private static final VoxelShape BASE_SHAPE = Block.box(0, 0, 0, 16, 16, 16);
+
+    // The plunger (untriggered): narrow, sticks up an extra half-block (Y=16 to Y=24)
+    private static final VoxelShape PLUNGER_UP = Block.box(5, 16, 5, 11, 24, 11);
+
+    // The plunger (triggered): pushed down closer to the base (Y=16 to Y=18)
+    private static final VoxelShape PLUNGER_DOWN = Block.box(5, 16, 5, 11, 18, 11);
+
+    // Combine them using Shapes.or()
+    private static final VoxelShape SHAPE_UNTRIGGERED = Shapes.or(BASE_SHAPE, PLUNGER_UP);
+    private static final VoxelShape SHAPE_TRIGGERED = Shapes.or(BASE_SHAPE, PLUNGER_DOWN);
 
     public ExplosiveTrapBlock(Properties properties) {
         super(properties);
@@ -45,12 +56,12 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
 
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(TRIGGERED) ? COLLISION_TRIGGERED : COLLISION_UNTRIGGERED;
+        return state.getValue(TRIGGERED) ? SHAPE_TRIGGERED : SHAPE_UNTRIGGERED;
     }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(TRIGGERED) ? COLLISION_TRIGGERED : COLLISION_UNTRIGGERED;
+        return state.getValue(TRIGGERED) ? SHAPE_TRIGGERED : SHAPE_UNTRIGGERED;
     }
 
     @Override
@@ -79,25 +90,40 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
         if (!level.isClientSide()) {
             activate(level, pos, state);
         }
-//        return InteractionResult.SUCCESS;
-        return super.useWithoutItem(state, level, pos, player, hitResult);
+        return InteractionResult.SUCCESS;
+//        return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier applier, boolean intersects) {
         if (level.isClientSide()) return;
         if (state.getValue(TRIGGERED)) return;
+        if (!(entity instanceof Player player)) return;
+        activate(level, pos, state);
 
-        double x = entity.getX();
-        double z =  entity.getZ();
-        if (x >= pos.getX() && x < pos.getX() + 1 && z >= pos.getZ() && z < pos.getZ() + 1) {
-            double feetY = entity.getY();
-            double topY = pos.getY() + COLLISION_UNTRIGGERED.max(Direction.Axis.Y) / 16;
-            if (feetY >= topY - 0.1 && feetY <= topY + 0.5) {
+        // Player coordinates
+        double pX = player.getX();
+        double pZ = player.getZ();
+        double feetY = player.getY();
+
+        // 1. Is the player roughly above the center of the block (the plunger)?
+        // Plunger is roughly from 5/16 to 11/16 across the block.
+        double minX = pos.getX() + (5.0 / 16.0);
+        double maxX = pos.getX() + (11.0 / 16.0);
+        double minZ = pos.getZ() + (5.0 / 16.0);
+        double maxZ = pos.getZ() + (11.0 / 16.0);
+
+        if (pX >= minX && pX <= maxX && pZ >= minZ && pZ <= maxZ) {
+
+            // 2. Are they standing ON the plunger?
+            // Plunger top is at Y=15 (which is pos.getY() + 15/16)
+            double plungerTopY = pos.getY() + (15.0 / 16.0);
+
+            // Give a generous vertical window just above the plunger
+            if (feetY >= plungerTopY - 0.1 && feetY <= plungerTopY + 0.5) {
                 activate(level, pos, state);
             }
         }
-
 
         super.entityInside(state, level, pos, entity, applier, intersects);
     }
