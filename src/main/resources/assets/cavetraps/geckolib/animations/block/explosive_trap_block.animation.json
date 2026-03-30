@@ -12,9 +12,9 @@
 						"0.0": {
 							"vector": [0, 0, 0]
 						},
-						"0.625": {
+						"0.1667": {
 							"vector": [0, -6, 0],
-							"easing": "easeOutExpo"
+							"easing": "easeInExpo"
 						}
 					}
 				}

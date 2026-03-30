@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -27,7 +28,8 @@ import org.jspecify.annotations.Nullable;
 public class ExplosiveTrapBlock extends Block implements EntityBlock {
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final Property<Boolean> TRIGGERED = BooleanProperty.create("triggered");
-    private static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 20, 15);
+    private static final VoxelShape COLLISION_UNTRIGGERED = Block.box(4, 12, 4, 12, 14, 12);
+    private static final VoxelShape COLLISION_TRIGGERED   = Block.box(4, 12, 4, 12, 13, 12);
 
     public ExplosiveTrapBlock(Properties properties) {
         super(properties);
@@ -41,10 +43,15 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
         builder.add(FACING, TRIGGERED);
     }
 
-//    @Override
-//    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-//        return SHAPE;
-//    }
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return state.getValue(TRIGGERED) ? COLLISION_TRIGGERED : COLLISION_UNTRIGGERED;
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return state.getValue(TRIGGERED) ? COLLISION_TRIGGERED : COLLISION_UNTRIGGERED;
+    }
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
@@ -72,15 +79,27 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
         if (!level.isClientSide()) {
             activate(level, pos, state);
         }
+//        return InteractionResult.SUCCESS;
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
     @Override
-    public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        if (!level.isClientSide()) {
-            activate(level, pos, state);
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier applier, boolean intersects) {
+        if (level.isClientSide()) return;
+        if (state.getValue(TRIGGERED)) return;
+
+        double x = entity.getX();
+        double z =  entity.getZ();
+        if (x >= pos.getX() && x < pos.getX() + 1 && z >= pos.getZ() && z < pos.getZ() + 1) {
+            double feetY = entity.getY();
+            double topY = pos.getY() + COLLISION_UNTRIGGERED.max(Direction.Axis.Y) / 16;
+            if (feetY >= topY - 0.1 && feetY <= topY + 0.5) {
+                activate(level, pos, state);
+            }
         }
-        super.stepOn(level, pos, state, entity);
+
+
+        super.entityInside(state, level, pos, entity, applier, intersects);
     }
 
     private void activate(Level level, BlockPos pos, BlockState state) {
