@@ -99,7 +99,7 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
         if (level.isClientSide()) return;
         if (state.getValue(TRIGGERED)) return;
         if (!(entity instanceof Player player)) return;
-        activate(level, pos, state);
+//        activate(level, pos, state);
 
         // Player coordinates
         double pX = player.getX();
@@ -113,11 +113,17 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
         double minZ = pos.getZ() + (5.0 / 16.0);
         double maxZ = pos.getZ() + (11.0 / 16.0);
 
+        player.displayClientMessage(
+                net.minecraft.network.chat.Component.literal(
+                        String.format("Debug - feetY: %.2f | Target Top Y: %.2f", feetY, pos.getY() + (24.0 / 16.0))
+                ),
+                false // false sends to chat, true sends to the action bar above the hotbar
+        );
         if (pX >= minX && pX <= maxX && pZ >= minZ && pZ <= maxZ) {
 
             // 2. Are they standing ON the plunger?
             // Plunger top is at Y=15 (which is pos.getY() + 15/16)
-            double plungerTopY = pos.getY() + (15.0 / 16.0);
+            double plungerTopY = pos.getY() + (24.0 / 16.0);
 
             // Give a generous vertical window just above the plunger
             if (feetY >= plungerTopY - 0.1 && feetY <= plungerTopY + 0.5) {
