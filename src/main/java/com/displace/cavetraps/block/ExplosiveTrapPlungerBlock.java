@@ -53,9 +53,13 @@ public class ExplosiveTrapPlungerBlock extends Block {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        BlockState stateBelow = level.getBlockState(pos.below());
-        if (!level.isClientSide() && stateBelow.getBlock() instanceof ExplosiveTrapBlock trap) {
-            trap.activate(level, pos, state);
+        if (!level.isClientSide()) {
+            BlockPos basePos = pos.below();
+            BlockState baseState = level.getBlockState(basePos);
+
+            if (baseState.getBlock() instanceof ExplosiveTrapBlock trap) {
+                trap.activate(level, basePos, baseState);
+            }
         }
         return InteractionResult.SUCCESS;
     }

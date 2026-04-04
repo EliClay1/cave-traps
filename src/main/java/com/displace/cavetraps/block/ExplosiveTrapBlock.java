@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -86,7 +87,32 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
             activate(level, pos, state);
         }
         return InteractionResult.SUCCESS;
-//        return super.useWithoutItem(state, level, pos, player, hitResult);
+    }
+
+    private void triggerNearbyTnt(ServerLevel level, BlockPos center, int radius) {
+        for (BlockPos targetPos : BlockPos.betweenClosed(
+                center.offset(-radius, -radius, -radius),
+                center.offset(radius, radius, radius))) {
+
+            BlockState targetState = level.getBlockState(targetPos);
+
+            if (!(targetState.getBlock() instanceof TntBlock)) {
+                continue;
+            }
+
+            level.removeBlock(targetPos, false);
+
+            PrimedTnt primedTnt = new PrimedTnt(
+                    level,
+                    targetPos.getX() + 0.5,
+                    targetPos.getY(),
+                    targetPos.getZ() + 0.5,
+                    null
+            );
+
+            primedTnt.setFuse(0);
+            level.addFreshEntity(primedTnt);
+        }
     }
 
     public void activate(Level level, BlockPos pos, BlockState state) {
@@ -97,7 +123,7 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
         if (level.getBlockEntity(pos) instanceof ExplosiveTrapBlockEntity trap) {
             trap.activate();
         }
-        level.scheduleTick(pos, this, 35);
+        level.scheduleTick(pos, this, 25);
     }
 
     @Override
@@ -105,6 +131,7 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
         if (!state.getValue(TRIGGERED)) {
             return;
         }
+        if (level instanceof ServerLevel serverLevel) triggerNearbyTnt(serverLevel, pos, 5);
         level.removeBlock(pos, false);
         level.explode(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 4.0F, Level.ExplosionInteraction.BLOCK);
         super.tick(state, level, pos, random);
