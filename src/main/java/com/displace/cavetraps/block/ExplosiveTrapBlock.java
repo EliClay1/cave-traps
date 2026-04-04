@@ -1,6 +1,5 @@
 package com.displace.cavetraps.block;
 
-import com.displace.cavetraps.CaveTraps;
 import com.displace.cavetraps.blockentities.ExplosiveTrapBlockEntity;
 import com.displace.cavetraps.blockentities.ModBlockEntities;
 import net.minecraft.core.BlockPos;
