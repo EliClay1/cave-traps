@@ -26,6 +26,10 @@ public class ModBlocks {
             new ExplosiveTrapBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)).noOcclusion())
             ));
 
+    public static final DeferredBlock<ExplosiveTrapPlungerBlock> EXPLOSIVE_TRAP_PLUNGER_BLOCK = BLOCKS.register("explosive_trap_plunger", identifier -> (
+            new ExplosiveTrapPlungerBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)).noOcclusion())
+            ));
+
     // registers the Deferred register above. Passes into event bus.
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);
