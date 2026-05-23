@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:item/generated",
+    "model": "cavetraps:block/vine_trap_vine"
+  }
+}

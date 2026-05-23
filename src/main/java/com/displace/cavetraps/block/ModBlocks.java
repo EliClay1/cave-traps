@@ -24,17 +24,19 @@ public class ModBlocks {
 
     public static final DeferredBlock<ExplosiveTrapBlock> EXPLOSIVE_TRAP_BLOCK = BLOCKS.register("explosive_trap_block", identifier -> (
             new ExplosiveTrapBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)).noOcclusion())
-            ));
+        ));
 
     public static final DeferredBlock<ExplosiveTrapPlungerBlock> EXPLOSIVE_TRAP_PLUNGER_BLOCK = BLOCKS.register("explosive_trap_plunger", identifier -> (
             new ExplosiveTrapPlungerBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)).noOcclusion())
-            ));
+        ));
 
-    public static final DeferredBlock<VineTrapBlock> VINE_TRAP_BLOCK = BLOCKS.registerBlock("vine_trap_block", VineTrapBlock::new);
+    public static final DeferredBlock<VineTrapBlock> VINE_TRAP_BLOCK = BLOCKS.register("vine_trap_block", identifier -> (
+            new VineTrapBlock(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)).noOcclusion())
+        ));
 
-    public static final DeferredBlock<VineTrapVine> VINE_TRAP_VINE = BLOCKS.registerBlock("vine_trap_vine", (properties) -> (
-            new VineTrapVine(properties.noCollision())
-            ));
+    public static final DeferredBlock<VineTrapVine> VINE_TRAP_VINE = BLOCKS.register("vine_trap_vine", (identifier) -> (
+            new VineTrapVine(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)).noCollision())
+        ));
 
     // registers the Deferred register above. Passes into event bus.
     public static void register(IEventBus eventBus) {

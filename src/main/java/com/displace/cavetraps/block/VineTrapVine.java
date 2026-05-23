@@ -7,6 +7,7 @@ import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.TwistingVinesPlantBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -30,6 +31,8 @@ public class VineTrapVine extends Block {
         Vec3 vec3 = new Vec3(0.25F, 0.05F, 0.25F);
 
         // TODO - add tick % 10 = -.5 health. (check cacti logic)
+
+        // TODO - make climbable - This is done within the data
 
         // TODO - add creeper passthrough logic
 //        if (p_58183_ instanceof LivingEntity livingentity) {

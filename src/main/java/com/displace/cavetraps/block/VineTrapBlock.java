@@ -9,7 +9,6 @@ public class VineTrapBlock extends Block {
 
     // TODO - create block-state that controls further vine creation.
 
-
     // TODO - player detection logic
 
     // TODO - Create vine blocks above

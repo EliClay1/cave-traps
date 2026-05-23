@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "cavetraps:block/vine_trap_vines"
-  }
-}
