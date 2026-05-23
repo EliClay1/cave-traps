@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "cavetraps:block/vine_trap_vine_head"
+    "layer0": "cavetraps:item/vine_trap_vine"
   }
 }

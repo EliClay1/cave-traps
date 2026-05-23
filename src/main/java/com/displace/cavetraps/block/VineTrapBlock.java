@@ -38,7 +38,7 @@ public class VineTrapBlock extends Block {
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (level.isClientSide()) return;
 
-        double radius = 2.5;
+        double radius = 1.5;
         AABB detectionBox = new AABB(pos).inflate(radius);
         List<Player> players = level.getEntitiesOfClass(Player.class, detectionBox);
         if (!players.isEmpty() && !state.getValue(ACTIVATED)) activateTrap(state, level, pos, random);

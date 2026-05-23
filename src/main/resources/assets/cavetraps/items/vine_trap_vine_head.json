@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "cavetraps:block/vine_trap_vine"
+    "model": "cavetraps:item/vine_trap_vine_head"
   }
 }
