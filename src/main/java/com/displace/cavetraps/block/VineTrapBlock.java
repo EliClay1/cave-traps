@@ -49,9 +49,8 @@ public class VineTrapBlock extends Block {
         level.scheduleTick(pos, this, 10);
     }
 
-    // TODO - Create vine blocks above
+    // TODO - Animate the blocks
     private void activateTrap(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        // TODO - update the state to active. Still not working for some reason
         level.setBlockAndUpdate(pos, state.setValue(ACTIVATED, true));
 
         for (int i = 1; i <= random.nextIntBetweenInclusive(2, 4); ++i) {

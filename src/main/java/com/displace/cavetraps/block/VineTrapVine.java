@@ -3,12 +3,8 @@ package com.displace.cavetraps.block;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -18,6 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import static com.displace.cavetraps.block.VineTrapVineHead.getInsideEntityActions;
 
 public class VineTrapVine extends GrowingPlantBodyBlock {
     private static final VoxelShape SHAPE = Block.column(8.0F, 0.0F, 16.0F);
@@ -33,19 +31,7 @@ public class VineTrapVine extends GrowingPlantBodyBlock {
 
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier applier, boolean intersects) {
-
-        if (level instanceof ServerLevel serverLevel && !(entity instanceof Creeper)) {
-            entity.hurtServer(serverLevel, level.damageSources().cactus(), 1.0F);
-        }
-
-
-        // TODO - add creeper passthrough logic
-        Vec3 vec3 = new Vec3(0.25F, 0.05F, 0.25F);
-        if (entity instanceof LivingEntity livingEntity) {
-            if (livingEntity instanceof Creeper) {
-                vec3 = new Vec3(1.0F, 0.5F, 1.0F);
-            }
-        }
+        Vec3 vec3 = getInsideEntityActions(level, entity);
         entity.makeStuckInBlock(state, vec3);
     }
 
