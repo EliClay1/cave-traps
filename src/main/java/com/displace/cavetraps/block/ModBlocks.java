@@ -38,6 +38,10 @@ public class ModBlocks {
             new VineTrapVine(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)).noCollision())
         ));
 
+    public static final DeferredBlock<VineTrapVineHead> VINE_TRAP_VINE_HEAD = BLOCKS.register("vine_trap_vine_head", (identifier) -> (
+            new VineTrapVineHead(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, identifier)).noCollision())
+    ));
+
     // registers the Deferred register above. Passes into event bus.
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);

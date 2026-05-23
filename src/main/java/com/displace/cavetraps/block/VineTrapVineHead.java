@@ -4,31 +4,28 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.effect.MobEffects;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.GrowingPlantBodyBlock;
 import net.minecraft.world.level.block.GrowingPlantHeadBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class VineTrapVine extends GrowingPlantBodyBlock {
+public class VineTrapVineHead extends GrowingPlantHeadBlock {
     private static final VoxelShape SHAPE = Block.column(8.0F, 0.0F, 16.0F);
-    public static final MapCodec<VineTrapVine> CODEC = simpleCodec(VineTrapVine::new);
+    public static final MapCodec<VineTrapVineHead> CODEC = simpleCodec(VineTrapVineHead::new);
 
-    public MapCodec<VineTrapVine> codec() {
-        return CODEC;
+    public VineTrapVineHead(Properties properties) {
+        super(properties, Direction.UP, SHAPE, false, 0.0);
     }
 
-    public VineTrapVine(Properties properties) {
-        super(properties , Direction.UP, SHAPE, false);
+    public MapCodec<VineTrapVineHead> codec() {
+        return CODEC;
     }
 
     @Override
@@ -38,24 +35,28 @@ public class VineTrapVine extends GrowingPlantBodyBlock {
             entity.hurtServer(serverLevel, level.damageSources().cactus(), 1.0F);
         }
 
-
-        // TODO - add creeper passthrough logic
         Vec3 vec3 = new Vec3(0.25F, 0.05F, 0.25F);
         if (entity instanceof LivingEntity livingEntity) {
             if (livingEntity instanceof Creeper) {
-                vec3 = new Vec3(1.0F, 0.5F, 1.0F);
+                vec3 = new Vec3(1.0F, 1.5F, 1.0F);
             }
         }
         entity.makeStuckInBlock(state, vec3);
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+    protected Block getBodyBlock() {
+        return ModBlocks.VINE_TRAP_VINE.get();
+    }
+
+    // required for override.
+    @Override
+    protected int getBlocksToGrowWhenBonemealed(RandomSource randomSource) {
+        return 0;
     }
 
     @Override
-    protected GrowingPlantHeadBlock getHeadBlock() {
-        return ModBlocks.VINE_TRAP_VINE_HEAD.get();
+    protected boolean canGrowInto(BlockState blockState) {
+        return false;
     }
 }
