@@ -1,6 +1,5 @@
 package com.displace.cavetraps.block;
 
-import com.displace.cavetraps.CaveTraps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -28,7 +27,6 @@ public class VineTrapBlock extends Block {
         builder.add(ACTIVATED);
     }
 
-    // TODO - player detection logic
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
@@ -49,7 +47,6 @@ public class VineTrapBlock extends Block {
         level.scheduleTick(pos, this, 10);
     }
 
-    // TODO - Animate the blocks
     private void activateTrap(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         level.setBlockAndUpdate(pos, state.setValue(ACTIVATED, true));
 
@@ -59,8 +56,4 @@ public class VineTrapBlock extends Block {
             level.setBlock(abovePosition, vine, 3);
         }
     }
-
-
-
-
 }

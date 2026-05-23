@@ -30,7 +30,7 @@ public class VineTrapVineHead extends GrowingPlantHeadBlock {
 
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier applier, boolean intersects) {
-        Vec3 vec3 = getInsideEntityActions(level, entity);
+        Vec3 vec3 = getInsideVineActions(level, entity);
         entity.makeStuckInBlock(state, vec3);
     }
 
@@ -50,7 +50,7 @@ public class VineTrapVineHead extends GrowingPlantHeadBlock {
         return false;
     }
 
-    public static Vec3 getInsideEntityActions(Level level, Entity entity) {
+    public static Vec3 getInsideVineActions(Level level, Entity entity) {
         if (level instanceof ServerLevel serverLevel && !(entity instanceof Creeper)) {
             entity.hurtServer(serverLevel, level.damageSources().cactus(), 1.0F);
         }

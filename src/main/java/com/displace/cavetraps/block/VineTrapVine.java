@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import static com.displace.cavetraps.block.VineTrapVineHead.getInsideEntityActions;
+import static com.displace.cavetraps.block.VineTrapVineHead.getInsideVineActions;
 
 public class VineTrapVine extends GrowingPlantBodyBlock {
     private static final VoxelShape SHAPE = Block.column(8.0F, 0.0F, 16.0F);
@@ -31,7 +31,7 @@ public class VineTrapVine extends GrowingPlantBodyBlock {
 
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier applier, boolean intersects) {
-        Vec3 vec3 = getInsideEntityActions(level, entity);
+        Vec3 vec3 = getInsideVineActions(level, entity);
         entity.makeStuckInBlock(state, vec3);
     }
 

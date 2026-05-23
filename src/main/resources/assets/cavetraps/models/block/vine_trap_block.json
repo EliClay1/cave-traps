@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "minecraft:block/stone",
+    "east": "minecraft:block/stone",
+    "north": "minecraft:block/stone",
+    "particle": "minecraft:block/stone",
+    "south": "minecraft:block/stone",
+    "up": "cavetraps:block/vine_trap_block",
+    "west": "minecraft:block/stone"
+  }
+}
