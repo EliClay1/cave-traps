@@ -22,6 +22,10 @@ public class ModItems {
             new BlockItem(ModBlocks.VINE_TRAP_BLOCK.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName)))
     ));
 
+    public static final DeferredItem<Item> VINE_TRAP_VINE_ITEM = ITEMS.register("vine_trap_vine", registryName -> (
+            new BlockItem(ModBlocks.VINE_TRAP_VINE.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName)))
+            ));
+
     public static final DeferredItem<Item> TEST_BLOCK_ITEM = ITEMS.register("test_block", registryName -> (
             new BlockItem(ModBlocks.TEST_BLOCK.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, registryName)))
     ));

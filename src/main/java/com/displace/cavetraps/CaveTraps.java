@@ -44,6 +44,7 @@ public class CaveTraps {
                 output.accept(ModItems.TEST_BLOCK_ITEM.get());
                 output.accept(ModItems.EXPLOSIVE_TRAP_ITEM.get());
                 output.accept(ModItems.VINE_TRAP_ITEM.get());
+                output.accept(ModItems.VINE_TRAP_VINE_ITEM.get());
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.

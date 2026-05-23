@@ -32,6 +32,10 @@ public class ModBlocks {
 
     public static final DeferredBlock<VineTrapBlock> VINE_TRAP_BLOCK = BLOCKS.registerBlock("vine_trap_block", VineTrapBlock::new);
 
+    public static final DeferredBlock<VineTrapVine> VINE_TRAP_VINE = BLOCKS.registerBlock("vine_trap_vine", (properties) -> (
+            new VineTrapVine(properties.noCollision())
+            ));
+
     // registers the Deferred register above. Passes into event bus.
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);
