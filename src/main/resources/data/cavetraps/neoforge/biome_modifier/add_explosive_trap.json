@@ -2,5 +2,5 @@
   "type": "neoforge:add_features",
   "biomes": "#minecraft:is_overworld",
   "features": "cavetraps:explosive_trap",
-  "step": "local_modifications"
+  "step": "underground_decoration"
 }

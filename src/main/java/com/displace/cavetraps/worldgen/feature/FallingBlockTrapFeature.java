@@ -1,5 +1,6 @@
 package com.displace.cavetraps.worldgen.feature;
 
+import com.displace.cavetraps.block.ModBlocks;
 import com.displace.cavetraps.worldgen.feature.config.FallingBlockTrapConfig;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
@@ -11,8 +12,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 import static com.displace.cavetraps.worldgen.util.CaveScanUtil.*;
-import static com.displace.cavetraps.worldgen.util.TrapPlacementUtil.canReplaceForTrap;
-import static com.displace.cavetraps.worldgen.util.TrapPlacementUtil.setIfReplaceable;
+import static com.displace.cavetraps.worldgen.util.TrapPlacementUtil.*;
 import static java.lang.Math.round;
 
 public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
@@ -41,10 +41,18 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
 
         LowerCaveHit lowerHit = findLowerCave(level, upperFloor, config);
 
-        
+        if (config.carveFunnel()) {
+            if (lowerHit != null) {
+                carveFunnel(level, upperFloor, lowerHit.airCenter(), config);
+            }
+        }
 
+        setRadialTrapBlocks(level, upperFloor, ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState(), config.funnelTopRadius());
 
-        return true;
+        if (lowerHit != null) {
+            return placeSpikes(level, lowerHit.approximateFloor(), config, random);
+        }
+        return false;
     }
 
 
@@ -82,8 +90,7 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
         int totalDepth = upperFloor.getY() - lowerAirCenter.getY();
         if (totalDepth <= 0) return;
 
-        // don't carve more than 256 blocks for performance.
-        int maxCarved = 256;
+        int maxCarved = 1024;
         int carved = 0;
 
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();

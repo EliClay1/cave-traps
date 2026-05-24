@@ -4,6 +4,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.lwjgl.opengl.INTELBlackholeRender;
+import org.w3c.dom.stylesheets.LinkStyle;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CaveScanUtil {
 
@@ -12,7 +17,7 @@ public class CaveScanUtil {
      */
     public static boolean isAirLike(WorldGenLevel level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
-        return state.isAir() || state.is(Blocks.CAVE_VINES) || state.is(Blocks.CAVE_VINES_PLANT);
+        return state.isAir() || state.is(Blocks.CAVE_VINES) || state.is(Blocks.CAVE_VINES_PLANT) || state.is(Blocks.CAVE_AIR);
     }
 
     public static boolean isLiquid(BlockState blockState) {
@@ -120,21 +125,42 @@ public class CaveScanUtil {
      * Short-circuits the moment the threshold is hit for maximum performance.
      */
     public static boolean hasMinimumAirVolume(WorldGenLevel level, BlockPos center, int radiusX, int radiusY, int radiusZ, int minAir, int maxChecks) {
+        if (minAir <= 0) return true;
+
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
         int airCount = 0;
         int checks = 0;
 
-        for (int y = -radiusY; y <= radiusY; y++) {
-            for (int x = -radiusX; x <= radiusX; x++) {
-                for (int z = -radiusZ; z <= radiusZ; z++) {
-                    if (checks++ >= maxChecks) {
-                        return false;
-                    }
-                    mutablePos.setWithOffset(center, x, y, z);
-                    if (isAirLike(level, mutablePos)) {
-                        airCount++;
-                        if (airCount >= minAir) {
-                            return true; // Fast exit!
+        // Use the largest radius to define our bounding box
+        int maxRadius = Math.max(radiusX, Math.max(radiusY, radiusZ));
+
+        // Scan outward in expanding concentric distances
+        for (int r = 0; r <= maxRadius; r++) {
+            for (int y = -r; y <= r; y++) {
+                if (Math.abs(y) > radiusY) continue; // Respect specific Y radius
+
+                for (int x = -r; x <= r; x++) {
+                    if (Math.abs(x) > radiusX) continue; // Respect specific X radius
+
+                    for (int z = -r; z <= r; z++) {
+                        if (Math.abs(z) > radiusZ) continue; // Respect specific Z radius
+
+                        // Only process the 'shell' of the current radius to avoid rescanning
+                        if (Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z))) != r) continue;
+
+                        if (checks >= maxChecks) return false;
+                        checks++;
+
+                        mutablePos.setWithOffset(center, x, y, z);
+
+                        // Uncomment for debug visualization:
+                        // level.setBlock(mutablePos, Blocks.SEA_LANTERN.defaultBlockState(), 2);
+
+                        if (isAirLike(level, mutablePos)) {
+                            airCount++;
+                            if (airCount >= minAir) {
+                                return true;
+                            }
                         }
                     }
                 }

@@ -32,6 +32,20 @@ public class TrapPlacementUtil {
         level.setBlock(pos, state, Block.UPDATE_CLIENTS);
     }
 
+    public static void setRadialTrapBlocks(WorldGenLevel level, BlockPos centerPos, BlockState state, int radius) {
+        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                mutablePos.set(centerPos.getX() + dx, centerPos.getY(), centerPos.getZ() + dz);
+
+                BlockPos radialPos = findNearestCaveFloor(level, mutablePos, 1, radius - 1);
+                if (radialPos == null) continue;
+
+                level.setBlock(radialPos, state, Block.UPDATE_CLIENTS);
+            }
+        }
+    }
+
     public static void setIfReplaceable(WorldGenLevel level, BlockPos pos, BlockState state) {
         if (canReplaceForTrap(level, pos)) setTrapBlock(level, pos, state);
     }

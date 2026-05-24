@@ -52,6 +52,7 @@ public class VineTrapFeature extends Feature<VineTrapConfig> {
             }
 
             // Validate that the trap has enough air clearance to sprout upwards
+            // TODO - fix so that the json data makes it clear that it is checking ABOVE, not below.
             boolean hasClearance = true;
             for (int i = 1; i < config.minCeilingClearance(); i++) {
                 if (!isAirLike(level, airPos.above(i))) {
