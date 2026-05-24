@@ -38,7 +38,7 @@ public class TrapPlacementUtil {
 
     public static boolean hasClearanceAbove(WorldGenLevel level, BlockPos pos, int height) {
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-        for (int i = -height; i <= height; i++) {
+        for (int i = 1; i <= height; i++) {
             mutablePos.setWithOffset(pos, 0, i, 0);
             if (!isAirLike(level, mutablePos)) return false;
         }

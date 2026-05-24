@@ -23,7 +23,7 @@ public class CaveScanUtil {
      * Determines if a block is a solid surface that can hold a trap.
      */
     public static boolean isSolidSupport(WorldGenLevel level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
+        BlockState state = level.getBlockState(pos.below());
         return !state.isAir() && !isLiquid(state) && state.isSolidRender();
     }
 
@@ -40,19 +40,21 @@ public class CaveScanUtil {
      * Returns null if no floor is found within the radius.
      */
     public static BlockPos findNearestCaveFloor(WorldGenLevel level, BlockPos origin, int horizontalRadius, int verticalRadius) {
-        BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
         BlockPos bestPos = null;
         double bestDistSquared = Double.MAX_VALUE;
+
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
         for (int y = -verticalRadius; y <= verticalRadius; y++) {
             for (int x = -horizontalRadius; x <= horizontalRadius; x++) {
                 for (int z = -horizontalRadius; z <= horizontalRadius; z++) {
+                    mutable.set(origin.getX() + x, origin.getY() + y, origin.getZ() + z);
 
-                    if (isCaveFloor(level, mutableBlockPos)) {
-                        double distSquared = mutableBlockPos.distSqr(origin);
+                    if (isCaveFloor(level, mutable)) {
+                        double distSquared = mutable.distSqr(origin);
                         if (distSquared < bestDistSquared) {
                             bestDistSquared = distSquared;
-                            bestPos = mutableBlockPos.immutable();
+                            bestPos = mutable.immutable().below();
                         }
                     }
                 }

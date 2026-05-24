@@ -5,7 +5,9 @@ import com.displace.cavetraps.entities.ModEntities;
 import com.displace.cavetraps.item.ModItems;
 import com.displace.cavetraps.blockentities.ModBlockEntities;
 import com.displace.cavetraps.worldgen.feature.ModFeatures;
+import com.displace.cavetraps.worldgen.util.TrapDebugCommand;
 import net.minecraft.world.item.*;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -66,6 +68,7 @@ public class CaveTraps {
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
+//        modEventBus.addListener(this::onRegisterCommands);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -88,6 +91,11 @@ public class CaveTraps {
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
         }
+    }
+
+    @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        TrapDebugCommand.register(event.getDispatcher());
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

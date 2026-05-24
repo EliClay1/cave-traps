@@ -1,5 +1,7 @@
 package com.displace.cavetraps.worldgen.feature;
 
+import com.displace.cavetraps.CaveTraps;
+import com.displace.cavetraps.CaveTrapsClient;
 import com.displace.cavetraps.block.ModBlocks;
 import com.displace.cavetraps.worldgen.feature.config.ExplosiveTrapConfig;
 import com.displace.cavetraps.worldgen.feature.config.ExplosiveTrapVariant;
@@ -32,19 +34,24 @@ public class ExplosiveTrapFeature extends Feature<ExplosiveTrapConfig> {
         if (origin.getY() < config.minY() || origin.getY() > config.maxY()) {
             return false;
         }
+        CaveTraps.LOGGER.info("Passed Check 1");
 
+        // TODO - Fix the floor position logic, it's messed up and is becoming mismatched between the various functions :D
         BlockPos floorPos = findNearestCaveFloor(level, origin, config.horizontalSearchRadius(), config.verticalSearchRadius());
         if (floorPos == null) {
             return false;
         }
+        CaveTraps.LOGGER.info("Passed Check 2");
 
         if (!hasClearanceAbove(level, floorPos, config.minAirAbove())) {
             return false;
         }
+        CaveTraps.LOGGER.info("Passed Check 3");
 
         if (!canPlaceEmbeddedFloorTrap(level, floorPos)) {
             return false;
         }
+        CaveTraps.LOGGER.info("Passed Check 4");
 
         ExplosiveTrapVariant variant = pickVariant(random, config.variants());
 
