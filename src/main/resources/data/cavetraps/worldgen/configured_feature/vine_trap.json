@@ -1,0 +1,13 @@
+{
+  "type": "cavetraps:vine_trap",
+  "config": {
+    "min_y": -50,
+    "max_y": 60,
+    "group_min": 5,
+    "group_max": 10,
+    "spread_radius": 8,
+    "vertical_search_radius": 6,
+    "max_placement_attempts": 24,
+    "min_ceiling_clearance": 2
+  }
+}

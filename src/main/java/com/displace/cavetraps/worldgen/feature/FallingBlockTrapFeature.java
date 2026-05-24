@@ -12,6 +12,7 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 import static com.displace.cavetraps.worldgen.util.CaveScanUtil.*;
 import static com.displace.cavetraps.worldgen.util.TrapPlacementUtil.canReplaceForTrap;
+import static com.displace.cavetraps.worldgen.util.TrapPlacementUtil.setIfReplaceable;
 import static java.lang.Math.round;
 
 public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
@@ -122,5 +123,32 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
 
     private static float lerp(float a, float b, float t) {
         return a + (b - a) * t;
+    }
+
+    private boolean placeSpikes(WorldGenLevel level, BlockPos lowerFloor, FallingBlockTrapConfig config, RandomSource random) {
+        int placed = 0;
+        int attempts = 0;
+        int maxAttempts = config.maxSpikePlacements() * 4;
+
+        BlockPos.MutableBlockPos candidate = new BlockPos.MutableBlockPos();
+        int r = config.lowerSearchRadius();
+        while (placed < config.maxSpikePlacements() &&  attempts < maxAttempts) {
+            attempts++;
+
+            int dx = random.nextInt(r  * 2 + 1) - r;
+            int dz = random.nextInt(r * 2 + 1) - r;
+            candidate.setWithOffset(lowerFloor, dx, 0, dz);
+
+            if (isCaveFloor(level, candidate)) continue;
+            if (random.nextFloat() >= config.spikeChance()) continue;
+
+            BlockPos spikePos =  candidate.above().immutable();
+            if (isAirLike(level, spikePos)) continue;
+
+            setIfReplaceable(level, spikePos, Blocks.POINTED_DRIPSTONE.defaultBlockState());
+
+            placed++;
+        }
+        return placed > 0;
     }
 }

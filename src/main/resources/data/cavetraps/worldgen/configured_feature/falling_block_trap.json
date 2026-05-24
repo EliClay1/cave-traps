@@ -1,0 +1,20 @@
+{
+  "type": "cavetraps:falling_block_trap",
+  "config": {
+    "min_y": -20,
+    "max_y": 30,
+    "upper_search_radius": 6,
+    "upper_vertical_search_radius": 5,
+    "lower_search_radius": 5,
+    "min_gap_to_lower_cave": 6,
+    "max_gap_to_lower_cave": 32,
+    "min_upper_cave_air": 45,
+    "min_lower_cave_air": 35,
+    "max_air_checks": 512,
+    "funnel_top_radius": 2,
+    "funnel_bottom_radius": 4,
+    "spike_chance": 0.55,
+    "max_spike_placements": 16,
+    "carve_funnel": true
+  }
+}
