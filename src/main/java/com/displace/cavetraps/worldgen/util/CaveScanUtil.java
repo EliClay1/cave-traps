@@ -15,12 +15,16 @@ public class CaveScanUtil {
         return state.isAir() || state.is(Blocks.CAVE_VINES) || state.is(Blocks.CAVE_VINES_PLANT);
     }
 
+    public static boolean isLiquid(BlockState blockState) {
+        return blockState.is(Blocks.WATER) || blockState.is(Blocks.LAVA);
+    }
+
     /**
      * Determines if a block is a solid surface that can hold a trap.
      */
     public static boolean isSolidSupport(WorldGenLevel level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
-        return !state.isAir() && !state.liquid() && state.isSolidRender();
+        return !state.isAir() && !isLiquid(state) && state.isSolidRender();
     }
 
     public static boolean isCaveFloor(WorldGenLevel level, BlockPos floorPos) {
