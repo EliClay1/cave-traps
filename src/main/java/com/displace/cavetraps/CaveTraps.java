@@ -4,6 +4,7 @@ import com.displace.cavetraps.block.ModBlocks;
 import com.displace.cavetraps.entities.ModEntities;
 import com.displace.cavetraps.item.ModItems;
 import com.displace.cavetraps.blockentities.ModBlockEntities;
+import com.displace.cavetraps.worldgen.feature.ModFeatures;
 import net.minecraft.world.item.*;
 import org.slf4j.Logger;
 
@@ -57,6 +58,7 @@ public class CaveTraps {
         ModItems.register(modEventBus);
         ModBlockEntities.register(modEventBus);
         ModEntities.register(modEventBus);
+        ModFeatures.register(modEventBus);
 
         CREATIVE_MODE_TABS.register(modEventBus);
 
