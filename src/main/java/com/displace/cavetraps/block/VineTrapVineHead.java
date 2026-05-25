@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.GrowingPlantHeadBlock;
@@ -51,16 +52,13 @@ public class VineTrapVineHead extends GrowingPlantHeadBlock {
     }
 
     public static Vec3 getInsideVineActions(Level level, Entity entity) {
-        if (level instanceof ServerLevel serverLevel && !(entity instanceof Creeper)) {
+        if (level instanceof ServerLevel serverLevel && (entity instanceof Player)) {
             entity.hurtServer(serverLevel, level.damageSources().cactus(), 1.0F);
         }
 
-        Vec3 vec3 = new Vec3(0.25F, 0.05F, 0.25F);
-        if (entity instanceof LivingEntity livingEntity) {
-            if (livingEntity instanceof Creeper) {
-                vec3 = new Vec3(1.5F, 1.5F, 1.5F);
-            }
+        if (!(entity instanceof Player)) {
+            return new Vec3(1.5F, 1.5F, 1.5F);
         }
-        return vec3;
+        return new Vec3(0.25F, 0.05F, 0.25F);
     }
 }

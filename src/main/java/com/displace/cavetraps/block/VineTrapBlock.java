@@ -29,9 +29,11 @@ public class VineTrapBlock extends Block {
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        super.onPlace(state, level, pos, oldState, movedByPiston);
         // begins ticking the block.
         if (!level.isClientSide()) level.scheduleTick(pos, this, 10);
+
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+
     }
 
     @Override

@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -141,5 +142,15 @@ public class ExplosiveTrapBlock extends Block implements EntityBlock {
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         level.setBlock(pos.above(), ModBlocks.EXPLOSIVE_TRAP_PLUNGER_BLOCK.get().defaultBlockState(), 3);
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        BlockPos abovePos =  pos.above();
+        BlockState baseState = level.getBlockState(abovePos);
+        if (baseState.getBlock() instanceof ExplosiveTrapPlungerBlock) {
+            level.destroyBlock(abovePos, false);
+        }
+        return super.playerWillDestroy(level, pos, state, player);
     }
 }

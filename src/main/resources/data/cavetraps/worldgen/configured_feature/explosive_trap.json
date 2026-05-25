@@ -8,7 +8,7 @@
     "min_air_above": 2,
     "variants": [
       {
-        "weight": 70,
+        "weight": 20,
         "explosive_layers": 0,
         "radius": 1,
         "debug_name": "normal"
@@ -20,7 +20,7 @@
         "debug_name": "some_explosives"
       },
       {
-        "weight": 5,
+        "weight": 15,
         "explosive_layers": 3,
         "radius": 2,
         "debug_name": "many_explosives"

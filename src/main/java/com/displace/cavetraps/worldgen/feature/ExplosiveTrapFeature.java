@@ -34,31 +34,28 @@ public class ExplosiveTrapFeature extends Feature<ExplosiveTrapConfig> {
         if (origin.getY() < config.minY() || origin.getY() > config.maxY()) {
             return false;
         }
-        CaveTraps.LOGGER.info("Passed Check 1");
 
-        // TODO - Fix the floor position logic, it's messed up and is becoming mismatched between the various functions :D
         BlockPos floorPos = findNearestCaveFloor(level, origin, config.horizontalSearchRadius(), config.verticalSearchRadius());
         if (floorPos == null) {
             return false;
         }
-        CaveTraps.LOGGER.info("Passed Check 2");
 
         if (!hasClearanceAbove(level, floorPos, config.minAirAbove())) {
             return false;
         }
-        CaveTraps.LOGGER.info("Passed Check 3");
 
         if (!canPlaceEmbeddedFloorTrap(level, floorPos)) {
             return false;
         }
-        CaveTraps.LOGGER.info("Passed Check 4");
 
         ExplosiveTrapVariant variant = pickVariant(random, config.variants());
 
+        setTrapBlock(level, floorPos.above(), ModBlocks.EXPLOSIVE_TRAP_PLUNGER_BLOCK.get().defaultBlockState());
         setTrapBlock(level, floorPos, ModBlocks.EXPLOSIVE_TRAP_BLOCK.get().defaultBlockState());
+
         if (variant.explosiveLayers() > 0 && variant.radius() > 0) {
             BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
-            for (int yOffset = 1; yOffset <= variant.explosiveLayers(); yOffset++) {
+            for (int yOffset = 2; yOffset <= variant.explosiveLayers(); yOffset++) {
                 for (int xOffset = -variant.radius(); xOffset <= variant.radius(); xOffset++) {
                     for (int zOffset = -variant.radius(); zOffset <= variant.radius(); zOffset++) {
                         mutablePos.setWithOffset(floorPos, xOffset, -yOffset, zOffset);

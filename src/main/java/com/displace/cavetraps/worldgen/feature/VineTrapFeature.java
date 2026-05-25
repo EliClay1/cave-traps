@@ -66,6 +66,7 @@ public class VineTrapFeature extends Feature<VineTrapConfig> {
             }
 
             setTrapBlock(level, airPos, ModBlocks.VINE_TRAP_BLOCK.get().defaultBlockState());
+            level.scheduleTick(airPos, ModBlocks.VINE_TRAP_BLOCK.get().defaultBlockState().getBlock(), 10);
             placedCount++;
         }
 
