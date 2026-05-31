@@ -10,8 +10,11 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.PointedDripstoneBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DripstoneThickness;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
@@ -66,7 +69,7 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
         FallingBlockTrapVariant variant = FallingBlockTrapVariant.getRandom(random);
         // TODO - Create new config options
 //        int depth = config.baseDepth;
-        int depth = 6;
+        int depth = 8;
         // increased depth for height-based traps.
         if (variant == FallingBlockTrapVariant.LAVA || variant == FallingBlockTrapVariant.SPIKE || variant == FallingBlockTrapVariant.SPIKE_AND_LAVA) {
             depth *= 2;
@@ -77,10 +80,13 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
 
         trapFootprint.add(origin);
 
-        int maxTerrainCurve = 4;
+        int maxTerrainCurve = 3;
         int numBlobs = 4 + random.nextInt(3);
         int maxSpread = 3;
-        float lureOreChange = 1f;
+        float lureOreChance = 1f;
+        float spikeGenerationPercentage = 0.3f;
+        float tntGenerationPercentage = 0.5f;
+        float tntTriggerGenerationPercentage = 0.2f;
 
         for (int i = 0; i < numBlobs; i++) {
             // Force the very first blob to be at the exact origin to anchor the shape.
@@ -145,9 +151,7 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
         for (BlockPos topPos : trapFootprint) {
 
             if (isEdgeOfFootprint(topPos, flatFootprint)) continue;
-
-            // TODO - flatten the bottom
-            BlockPos bottomPos = topPos.below(depth - 1);
+            BlockPos bottomPos = new BlockPos(topPos.getX(), origin.getY() - depth, topPos.getZ());
 
             setTrapBlock(level, topPos, ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState());
             BlockEntity block = level.getBlockEntity(topPos);
@@ -160,26 +164,49 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
                 be.setCamoState(decoStone);
             }
 
-            // TODO - introduce more complex variance here.
             switch(variant) {
                 case LAVA:
                     level.setBlock(bottomPos, Blocks.LAVA.defaultBlockState(), 2);
                     break;
                 case SPIKE:
-                    level.setBlock(bottomPos, Blocks.POINTED_DRIPSTONE.defaultBlockState(), 2);
+                    if (random.nextFloat() < spikeGenerationPercentage) {
+                        level.setBlock(bottomPos, Blocks.POINTED_DRIPSTONE.defaultBlockState().setValue(PointedDripstoneBlock.THICKNESS, DripstoneThickness.TIP), 2);
+                        if (random.nextFloat() < spikeGenerationPercentage / 2) {
+                            // chance to create bigger spikes
+                            level.setBlock(bottomPos, Blocks.POINTED_DRIPSTONE.defaultBlockState().setValue(PointedDripstoneBlock.THICKNESS, DripstoneThickness.FRUSTUM), 2);
+                            level.setBlock(bottomPos.above(), Blocks.POINTED_DRIPSTONE.defaultBlockState().setValue(PointedDripstoneBlock.THICKNESS, DripstoneThickness.TIP), 2);
+                        }
+                    }
                     break;
                 case TNT:
                     level.setBlock(bottomPos, Blocks.TNT.defaultBlockState(), 2);
                     level.setBlock(bottomPos.above(), decoStone, 2);
+                    if (random.nextFloat() < tntTriggerGenerationPercentage) level.setBlock(bottomPos.above(1), ModBlocks.EXPLOSIVE_TRAP_BLOCK.get().defaultBlockState(), 2);
                     break;
                 case SPIKE_AND_LAVA:
-                    // leave as lava for now
                     level.setBlock(bottomPos, Blocks.LAVA.defaultBlockState(), 2);
+                    if (random.nextFloat() < spikeGenerationPercentage / 3)  {
+                        level.setBlock(bottomPos, decoStone, 2);
+                        level.setBlock(bottomPos.above(1), Blocks.POINTED_DRIPSTONE.defaultBlockState(), 2);
+                    }
                     break;
                 case SPIKE_AND_TNT:
-                    // leave as TNT for now.
-                    level.setBlock(bottomPos, Blocks.TNT.defaultBlockState(), 2);
+                    // base TNT layer
+                    if (random.nextFloat() < tntGenerationPercentage) level.setBlock(bottomPos, Blocks.TNT.defaultBlockState(), 2);
                     level.setBlock(bottomPos.above(), decoStone, 2);
+
+                    // generate the trigger
+                    if (random.nextFloat() < tntTriggerGenerationPercentage / 2) level.setBlock(bottomPos.above(1), ModBlocks.EXPLOSIVE_TRAP_BLOCK.get().defaultBlockState(), 2);
+
+                    // generate spikes in remaining places.
+                    if (random.nextFloat() < spikeGenerationPercentage / 2 && level.getBlockState(bottomPos.above()).equals(Blocks.AIR.defaultBlockState())) {
+                        level.setBlock(bottomPos.above(1), Blocks.POINTED_DRIPSTONE.defaultBlockState(), 2);
+                        if (random.nextFloat() < spikeGenerationPercentage / 3) {
+                            // chance to create bigger spikes
+                            level.setBlock(bottomPos.above(1), Blocks.POINTED_DRIPSTONE.defaultBlockState().setValue(PointedDripstoneBlock.THICKNESS, DripstoneThickness.FRUSTUM), 2);
+                            level.setBlock(bottomPos.above(2), Blocks.POINTED_DRIPSTONE.defaultBlockState().setValue(PointedDripstoneBlock.THICKNESS, DripstoneThickness.TIP), 2);
+                        }
+                    }
                     break;
             }
         }
@@ -192,11 +219,11 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
             }
         }
 
-        if (centerSurface != null && !isEdgeOfFootprint(centerSurface, flatFootprint) && random.nextFloat() < lureOreChange) {
+        if (centerSurface != null && !isEdgeOfFootprint(centerSurface, flatFootprint) && random.nextFloat() < lureOreChance) {
             if (level.getBlockEntity(centerSurface) instanceof FallingTrapBlockEntity be) {
                 be.setCamoState(lureOre);
             }
-
+            // used for finding traps
             level.setBlock(centerSurface.above(3), Blocks.SEA_LANTERN.defaultBlockState(), 2);
         }
         return true;
@@ -204,7 +231,7 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
 
     private BlockPos findFloorBelow(WorldGenLevel level, BlockPos startAir, int maxDown) {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        for (int i = 1; i <= maxDown; i++) {
+        for (int i = 0; i <= maxDown; i++) {
             pos.setWithOffset(startAir, 0, -i, 0);
             if (isSolidSupport(level, pos)) {
                 return pos.immutable();
