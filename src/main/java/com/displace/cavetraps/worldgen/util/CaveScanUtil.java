@@ -9,6 +9,7 @@ import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class CaveScanUtil {
 
@@ -213,6 +214,15 @@ public class CaveScanUtil {
         }
         return true;
     }
+
+    public static boolean isEdgeOfFootprint(BlockPos pos, Set<BlockPos> footprint) {
+        return !footprint.contains(pos.north()) ||
+                !footprint.contains(pos.south()) ||
+                !footprint.contains(pos.east()) ||
+                !footprint.contains(pos.west());
+    }
+
+
 
     // create a util function to ensure that explosive trap TNT isn't visible.
 }

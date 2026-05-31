@@ -2,6 +2,7 @@ package com.displace.cavetraps.worldgen.feature;
 
 import com.displace.cavetraps.block.ModBlocks;
 import com.displace.cavetraps.worldgen.feature.config.FallingBlockTrapConfig;
+import com.displace.cavetraps.worldgen.feature.config.FallingBlockTrapVariant;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
@@ -10,6 +11,11 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.displace.cavetraps.worldgen.util.CaveScanUtil.*;
 import static com.displace.cavetraps.worldgen.util.TrapPlacementUtil.*;
@@ -29,6 +35,15 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
         RandomSource random = featurePlaceContext.random();
         FallingBlockTrapConfig config = featurePlaceContext.config();
 
+        // exit if outside y-level
+        int y = origin.getY();
+        if (y < config.minY() || y > config.maxY()) return false;
+
+        // find the cave floor
+        if (!isCaveFloor(level, origin.below())) return false;
+
+        // TODO - Map the block changes dependent on the Y level of the origin. Switch between deepslate and normal stone.
+
         // Quick checks for above air-space. Quick cancel for performance.
         if (!hasAirAbove(level, origin, 3)) return false;
         for (int dx = -1; dx <= 1; dx++) {
@@ -38,6 +53,90 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
                 if (!hasAirAbove(level, neighbor, 2)) return false;
             }
         }
+
+        FallingBlockTrapVariant variant = FallingBlockTrapVariant.getRandom(random);
+        // TODO - Create new config options
+//        int depth = config.baseDepth;
+        int depth = 6;
+        // increased depth for height-based traps.
+        if (variant == FallingBlockTrapVariant.LAVA || variant == FallingBlockTrapVariant.SPIKE || variant == FallingBlockTrapVariant.SPIKE_AND_LAVA) {
+            depth *= 2;
+        }
+
+        // gets hold of the top layer of the blocks.
+        Set<BlockPos> trapFootprint = new HashSet<>();
+        trapFootprint.add(origin);
+
+//        int radius = config.trapRadius
+        int radius = 8;
+        float shapeFillChange = 0.8f;
+        int maxTerrainCurve = 4;
+        float lureOreChange = 0.9f;
+
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                if (random.nextFloat() <=  shapeFillChange) {
+                    BlockPos surfaceBlock =  origin.offset(dx, 0, dz);
+                    if (Math.abs(surfaceBlock.getY() - origin.getY()) <= maxTerrainCurve) trapFootprint.add(surfaceBlock);
+                }
+            }
+        }
+
+        // Carves the space out. This could be moved to a different helper function.
+        BlockPos.MutableBlockPos carvePos = new BlockPos.MutableBlockPos();
+        for (BlockPos topPos : trapFootprint) {
+            for (int dy = 0; dy <= depth; dy++) {
+                carvePos.setWithOffset(topPos, 0, -dy, 0);
+
+                // should stop it from bypassing bedrock, though this may need to be changed.
+                if (carvePos.getY() <= level.getMinSectionY() + 1) continue;
+                boolean isWallBlock = isEdgeOfFootprint(topPos, trapFootprint) || dy == depth;
+
+                if (isWallBlock) {
+                    // may need to be changed to fit the environment more.
+                    level.setBlock(carvePos, Blocks.COBBLED_DEEPSLATE.defaultBlockState(), 2);
+                } else {
+                    // hollow space (where trap generation should be)
+                    level.setBlock(topPos, Blocks.AIR.defaultBlockState(), 2);
+                }
+            }
+        }
+
+        for (BlockPos topPos : trapFootprint) {
+            if (isEdgeOfFootprint(topPos, trapFootprint)) continue;
+            // this may need to be changed with problems that it causes.
+            BlockPos bottomPos = topPos.below(depth - 1);
+
+            // TODO - introduce more complex variance here.
+            switch(variant) {
+                case LAVA:
+                    level.setBlock(bottomPos, Blocks.LAVA.defaultBlockState(), 2);
+                    break;
+                case SPIKE:
+                    level.setBlock(bottomPos.above(), Blocks.POINTED_DRIPSTONE.defaultBlockState(), 2);
+                    break;
+                case TNT:
+                    level.setBlock(bottomPos, Blocks.TNT.defaultBlockState(), 2);
+                    level.setBlock(bottomPos.above(), Blocks.STONE.defaultBlockState(), 2);
+                    break;
+                case SPIKE_AND_LAVA:
+                    // leave as lava for now
+                    level.setBlock(bottomPos, Blocks.LAVA.defaultBlockState(), 2);
+                    break;
+                case SPIKE_AND_TNT:
+                    // leave as TNT for now.
+                    level.setBlock(bottomPos, Blocks.TNT.defaultBlockState(), 2);
+                    level.setBlock(bottomPos.above(), Blocks.STONE.defaultBlockState(), 2);
+                    break;
+            }
+        }
+
+        level.setBlock(origin, Blocks.SEA_LANTERN.defaultBlockState(), 2);
+        if (random.nextFloat() <= lureOreChange) {
+            level.setBlock(origin.above(1), Blocks.DEEPSLATE_DIAMOND_ORE.defaultBlockState(), 2);
+        }
+        return true;
+
 
 
 //        int y = origin.getY();
@@ -72,7 +171,6 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
 //            // modify  the floor spike generation. Heavy, more centralized.
 //            return placeSpikes(level, lowerHit.approximateFloor(), config, random);
 //        }
-        return false;
     }
 
 
