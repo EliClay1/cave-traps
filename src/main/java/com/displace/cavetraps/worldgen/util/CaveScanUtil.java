@@ -207,5 +207,12 @@ public class CaveScanUtil {
         return true;
     }
 
+    public static boolean hasAirAbove(WorldGenLevel level, BlockPos pos, int requiredAir) {
+        for (int i = 1; i <= requiredAir; i++) {
+            if (!isAirLike(level, pos.above(i))) return false;
+        }
+        return true;
+    }
+
     // create a util function to ensure that explosive trap TNT isn't visible.
 }

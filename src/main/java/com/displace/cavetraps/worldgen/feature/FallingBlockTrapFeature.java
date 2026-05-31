@@ -29,6 +29,17 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
         RandomSource random = featurePlaceContext.random();
         FallingBlockTrapConfig config = featurePlaceContext.config();
 
+        // Quick checks for above air-space. Quick cancel for performance.
+        if (!hasAirAbove(level, origin, 3)) return false;
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                if (dx == 0 && dz == 0) continue; //skips the center
+                BlockPos neighbor = origin.offset(dx, 0, dz);
+                if (!hasAirAbove(level, neighbor, 2)) return false;
+            }
+        }
+
+
 //        int y = origin.getY();
 //        if (y < config.minY() || y > config.maxY()) return false;
 //
