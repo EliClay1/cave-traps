@@ -12,6 +12,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
@@ -43,7 +44,8 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
         // find the cave floor
         if (!isCaveFloor(level, origin.below())) return false;
 
-        // TODO - Map the block changes dependent on the Y level of the origin. Switch between deepslate and normal stone.
+        BlockState decoStone = y > 8 ? Blocks.STONE.defaultBlockState() : Blocks.DEEPSLATE.defaultBlockState();
+        BlockState lureOre = y > 8 ? Blocks.DIAMOND_ORE.defaultBlockState() : Blocks.DEEPSLATE_DIAMOND_ORE.defaultBlockState();
 
         // Quick checks for above air-space. Quick cancel for performance.
         if (!hasAirAbove(level, origin, 3)) return false;
@@ -131,7 +133,7 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
 
                 if (isWallBlock) {
                     // Need to be changed to fit the environment more.
-                    level.setBlock(carvePos, Blocks.COBBLED_DEEPSLATE.defaultBlockState(), 2);
+                    level.setBlock(carvePos, decoStone, 2);
                 } else {
                     // hollow space (where trap generation should be)
                     level.setBlock(carvePos, Blocks.AIR.defaultBlockState(), 2);
@@ -139,24 +141,17 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
             }
         }
 
-        if (random.nextFloat() <= lureOreChange) {
-            setTrapBlock(level, origin.below(), ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState());
-            BlockEntity lureBlock = level.getBlockEntity(origin.below());
-            if (lureBlock instanceof FallingTrapBlockEntity be) {
-                be.setCamoState(Blocks.DIAMOND_ORE.defaultBlockState());
-            }
-        }
-
         for (BlockPos topPos : trapFootprint) {
 
             if (isEdgeOfFootprint(topPos, flatFootprint)) continue;
 
+            // TODO - flatten the bottom
             BlockPos bottomPos = topPos.below(depth - 1);
 
             setTrapBlock(level, topPos, ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState());
             BlockEntity block = level.getBlockEntity(topPos);
             if (block instanceof FallingTrapBlockEntity be) {
-                be.setCamoState(Blocks.COBBLED_DEEPSLATE.defaultBlockState());
+                be.setCamoState(decoStone);
             }
 
             // TODO - introduce more complex variance here.
@@ -169,7 +164,7 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
                     break;
                 case TNT:
                     level.setBlock(bottomPos, Blocks.TNT.defaultBlockState(), 2);
-                    level.setBlock(bottomPos.above(), Blocks.STONE.defaultBlockState(), 2);
+                    level.setBlock(bottomPos.above(), decoStone, 2);
                     break;
                 case SPIKE_AND_LAVA:
                     // leave as lava for now
@@ -178,12 +173,26 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
                 case SPIKE_AND_TNT:
                     // leave as TNT for now.
                     level.setBlock(bottomPos, Blocks.TNT.defaultBlockState(), 2);
-                    level.setBlock(bottomPos.above(), Blocks.STONE.defaultBlockState(), 2);
+                    level.setBlock(bottomPos.above(), decoStone, 2);
                     break;
             }
         }
 
-        level.setBlock(origin.above(3), Blocks.SEA_LANTERN.defaultBlockState(), 2);
+        BlockPos centerSurface = null;
+        for (BlockPos pos : trapFootprint) {
+            if (pos.getX() == origin.getX() && pos.getZ() == origin.getZ()) {
+                centerSurface = pos;
+                break;
+            }
+        }
+
+        if (centerSurface != null && !isEdgeOfFootprint(centerSurface, flatFootprint)) {
+            if (level.getBlockEntity(centerSurface) instanceof FallingTrapBlockEntity be) {
+                be.setCamoState(lureOre);
+            }
+
+            level.setBlock(centerSurface.above(3), Blocks.SEA_LANTERN.defaultBlockState(), 2);
+        }
         return true;
 
 
