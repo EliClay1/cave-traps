@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -51,14 +52,18 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
-        if (!level.isClientSide() && !state.getValue(HAS_CAMO)) {
-            level.scheduleTick(pos, this, 1);
+
+        if (!level.isClientSide()) {
+            if (!state.getValue(HAS_CAMO)) {
+                level.scheduleTick(pos, this, 1);
+            }
         }
     }
 
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, orientation, movedByPiston);
+
         if (!level.isClientSide() && !state.getValue(HAS_CAMO)) {
             level.scheduleTick(pos, this, 1);
         }
@@ -67,12 +72,6 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     @Override
     protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos,
                                      Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-
-        if (!level.isClientSide()) {
-            if (neighborState.getBlock() instanceof FallingTrapBlock && !neighborState.getValue(STABLE)) {
-                return state.setValue(STABLE, false);
-            }
-        }
         return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
     }
 
@@ -83,9 +82,9 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
                 return;
             }
 
-        }
-        if (state.getValue(STABLE)) {
-            triggerGroupFall(level, pos);
+            if (state.getValue(STABLE)) {
+                triggerGroupFall(level, pos);
+            }
         }
         super.stepOn(level, pos, state, entity);
     }
@@ -153,6 +152,7 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
         return false;
     }
 
+    // TODO - convert this logic, and the other group logic into a "find connected blocks" function. Then pass that into onLand triggerFall, and groupCamo. That way all of those functionalities happen at the same time.
     public void tryAcquireGroupCamo(Level level, BlockPos startPos) {
         Queue<BlockPos> queue = new LinkedList<>();
         Set<BlockPos> visited = new HashSet<>();
@@ -240,14 +240,15 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
         visited.add(startPos);
 
         int MAX_SEARCH_SIZE = 4096;
-        int  searchedCount = 0;
+        int searchedCount = 0;
+
         while (!queue.isEmpty()) {
             BlockPos currentPos = queue.poll();
             searchedCount++;
             BlockState currentState = level.getBlockState(currentPos);
 
             if (currentState.getValue(STABLE)) {
-                level.setBlockAndUpdate(currentPos, currentState.setValue(STABLE, false));
+                level.setBlock(currentPos, currentState.setValue(STABLE, false), 2);
                 level.scheduleTick(currentPos, this, initialFallTime);
             }
 
@@ -257,12 +258,21 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
                 BlockPos neighborPos = currentPos.relative(direction);
                 if (!visited.contains(neighborPos)) {
                     BlockState neighborState = level.getBlockState(neighborPos);
+                    // Check if it's our block, regardless of its current STABLE state
                     if (neighborState.getBlock() instanceof FallingTrapBlock) {
                         visited.add(neighborPos);
                         queue.add(neighborPos);
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void onLand(Level level, BlockPos pos, BlockState state, BlockState replaceableState, FallingBlockEntity fallingBlock) {
+        super.onLand(level, pos, state, replaceableState, fallingBlock);
+        if (!level.isClientSide() && state.getValue(GENERATED)) {
+            level.destroyBlock(pos, false);
         }
     }
 

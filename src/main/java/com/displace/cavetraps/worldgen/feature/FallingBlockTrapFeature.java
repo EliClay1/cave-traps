@@ -1,5 +1,6 @@
 package com.displace.cavetraps.worldgen.feature;
 
+import com.displace.cavetraps.block.FallingTrapBlock;
 import com.displace.cavetraps.block.ModBlocks;
 import com.displace.cavetraps.blockentities.FallingTrapBlockEntity;
 import com.displace.cavetraps.worldgen.feature.config.FallingBlockTrapConfig;
@@ -153,7 +154,7 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
             if (isEdgeOfFootprint(topPos, flatFootprint)) continue;
             BlockPos bottomPos = new BlockPos(topPos.getX(), origin.getY() - depth, topPos.getZ());
 
-            setTrapBlock(level, topPos, ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState());
+            setTrapBlock(level, topPos, ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState().setValue(FallingTrapBlock.GENERATED, true));
             BlockEntity block = level.getBlockEntity(topPos);
             if (block instanceof FallingTrapBlockEntity be) {
                 be.setCamoState(decoStone);
@@ -169,6 +170,7 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
                     level.setBlock(bottomPos, Blocks.LAVA.defaultBlockState(), 2);
                     break;
                 case SPIKE:
+                    // TODO - modify the generation pattern of this, ensure that there aren't weird generation bugs
                     if (random.nextFloat() < spikeGenerationPercentage) {
                         level.setBlock(bottomPos, Blocks.POINTED_DRIPSTONE.defaultBlockState().setValue(PointedDripstoneBlock.THICKNESS, DripstoneThickness.TIP), 2);
                         if (random.nextFloat() < spikeGenerationPercentage / 2) {
@@ -179,6 +181,7 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
                     }
                     break;
                 case TNT:
+                    // TODO - stop the falling block from breaking the detonator trigger
                     level.setBlock(bottomPos, Blocks.TNT.defaultBlockState(), 2);
                     level.setBlock(bottomPos.above(), decoStone, 2);
                     if (random.nextFloat() < tntTriggerGenerationPercentage) level.setBlock(bottomPos.above(1), ModBlocks.EXPLOSIVE_TRAP_BLOCK.get().defaultBlockState(), 2);
