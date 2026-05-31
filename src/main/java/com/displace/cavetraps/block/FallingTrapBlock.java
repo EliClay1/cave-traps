@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.redstone.Orientation;
 import org.jspecify.annotations.Nullable;
 
+import javax.management.Query;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -31,12 +32,21 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
 
     public static final Property<Boolean> STABLE = BooleanProperty.create("stable");
     public static final Property<Boolean> HAS_CAMO = BooleanProperty.create("has_camo");
+    public static final Property<Boolean> GENERATED = BooleanProperty.create("generated");
     public final int initialFallTime = 10;
 
     public FallingTrapBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.getStateDefinition().any().setValue(STABLE, true));
         this.registerDefaultState(this.getStateDefinition().any().setValue(HAS_CAMO, false));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(GENERATED, false));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(STABLE);
+        builder.add(HAS_CAMO);
+        builder.add(GENERATED);
     }
 
     @Override
@@ -66,7 +76,6 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
         return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
     }
 
-    // TODO - Modify so that ALL connected blocks (not just horizontally) fall.
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (!level.isClientSide()) {
@@ -76,8 +85,7 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
 
         }
         if (state.getValue(STABLE)) {
-            level.setBlockAndUpdate(pos, state.setValue(STABLE, false));
-            level.scheduleTick(pos, state.getBlock(), initialFallTime);
+            triggerGroupFall(level, pos);
         }
         super.stepOn(level, pos, state, entity);
     }
@@ -224,6 +232,40 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
         }
     }
 
+    // logic is cloned from acquiring group camo. Could be fixed later.
+    public void triggerGroupFall(Level level, BlockPos startPos) {
+        Queue<BlockPos> queue = new LinkedList<>();
+        Set<BlockPos> visited = new HashSet<>();
+        queue.add(startPos);
+        visited.add(startPos);
+
+        int MAX_SEARCH_SIZE = 4096;
+        int  searchedCount = 0;
+        while (!queue.isEmpty()) {
+            BlockPos currentPos = queue.poll();
+            searchedCount++;
+            BlockState currentState = level.getBlockState(currentPos);
+
+            if (currentState.getValue(STABLE)) {
+                level.setBlockAndUpdate(currentPos, currentState.setValue(STABLE, false));
+                level.scheduleTick(currentPos, this, initialFallTime);
+            }
+
+            if (searchedCount >= MAX_SEARCH_SIZE) break;
+
+            for (Direction direction : Direction.values()) {
+                BlockPos neighborPos = currentPos.relative(direction);
+                if (!visited.contains(neighborPos)) {
+                    BlockState neighborState = level.getBlockState(neighborPos);
+                    if (neighborState.getBlock() instanceof FallingTrapBlock) {
+                        visited.add(neighborPos);
+                        queue.add(neighborPos);
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     protected @Nullable MapCodec<? extends FallingBlock> codec() {
         return null;
@@ -233,12 +275,6 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
     @Override
     public int getDustColor(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
         return 0;
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(STABLE);
-        builder.add(HAS_CAMO);
     }
 
     @Override
