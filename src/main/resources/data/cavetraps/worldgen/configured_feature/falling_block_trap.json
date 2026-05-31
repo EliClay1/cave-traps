@@ -1,10 +1,10 @@
 {
   "type": "cavetraps:falling_block_trap",
   "config": {
-    "min_y": -20,
-    "max_y": 30,
-    "upper_search_radius": 6,
-    "upper_vertical_search_radius": 5,
+    "min_y": -50,
+    "max_y": 40,
+    "upper_search_radius": 5,
+    "upper_vertical_search_radius": 4,
     "lower_search_radius": 5,
     "min_gap_to_lower_cave": 6,
     "max_gap_to_lower_cave": 42,

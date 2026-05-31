@@ -104,10 +104,15 @@ public class CaveScanUtil {
         int airCount = 0;
         int checks = 0;
 
-        for (int y = -radiusY; y <= radiusY; y++) {
+        // ensures that there is enough space directly above the trap spot.
+        for (int y = 1; y <= radiusY; y++) {
+            if (!isAirLike(level, center.above(y))) return airCount;
+        }
+
+        for (int y = 1; y <= radiusY; y++) {
             for (int x = -radiusX; x <= radiusX; x++) {
                 for (int z = -radiusZ; z <= radiusZ; z++) {
-                    if (checks++ >= maxChecks) {
+                    if (checks++ > maxChecks) {
                         return airCount; // Early exit guardrail
                     }
                     mutablePos.setWithOffset(center, x, y, z);
@@ -168,4 +173,39 @@ public class CaveScanUtil {
         }
         return false;
     }
+
+    /**
+     * checks if there are surrounding walls going downward around the fall point. Prevents weird generations.
+     */
+    public static boolean hasSurroundingWalls(WorldGenLevel level, BlockPos center, int radiusX, int radiusY, int minimumWallAmount) {
+        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+
+        int totalCount = 0;
+
+        for (int z = -radiusX; z <= radiusX; z++) {
+            for (int y = -radiusY; y <= 0; y++) {
+                for (int x = -radiusX; x <= radiusX; x++) {
+                    if (x == -radiusX || x == radiusX || z == -radiusX || z == radiusX) {
+                        if(!isAirLike(level, mutablePos.setWithOffset(center, x, y, z))) totalCount++;
+                        if (totalCount > minimumWallAmount) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean locatedOnFlatSurface(WorldGenLevel level, BlockPos center, int radiusX, int radiusZ) {
+        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+        for (int z = -radiusZ; z <= radiusZ; z++) {
+            for (int x = -radiusX; x <= radiusX; x++) {
+                if (isAirLike(level, mutablePos.setWithOffset(center, x, center.getY(), z))) return false;
+            }
+        }
+        return true;
+    }
+
+    // create a util function to ensure that explosive trap TNT isn't visible.
 }
