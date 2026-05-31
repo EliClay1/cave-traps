@@ -1,6 +1,7 @@
 package com.displace.cavetraps.worldgen.util;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -215,11 +216,18 @@ public class CaveScanUtil {
         return true;
     }
 
-    public static boolean isEdgeOfFootprint(BlockPos pos, Set<BlockPos> footprint) {
-        return !footprint.contains(pos.north()) ||
-                !footprint.contains(pos.south()) ||
-                !footprint.contains(pos.east()) ||
-                !footprint.contains(pos.west());
+//    public static boolean isEdgeOfFootprint(BlockPos pos, Set<BlockPos> footprint) {
+//        return !footprint.contains(pos.north()) ||
+//                !footprint.contains(pos.south()) ||
+//                !footprint.contains(pos.east()) ||
+//                !footprint.contains(pos.west());
+//    }
+
+    public static boolean isEdgeOfFootprint(BlockPos pos, Set<Long> flatFootprint) {
+        return !flatFootprint.contains(ChunkPos.asLong(pos.getX(), pos.getZ() - 1)) || // North
+                !flatFootprint.contains(ChunkPos.asLong(pos.getX(), pos.getZ() + 1)) || // South
+                !flatFootprint.contains(ChunkPos.asLong(pos.getX() + 1, pos.getZ())) || // East
+                !flatFootprint.contains(ChunkPos.asLong(pos.getX() - 1, pos.getZ()));   // West
     }
 
 
