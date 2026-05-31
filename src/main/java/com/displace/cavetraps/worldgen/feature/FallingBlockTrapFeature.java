@@ -6,7 +6,6 @@ import com.displace.cavetraps.worldgen.feature.config.FallingBlockTrapConfig;
 import com.displace.cavetraps.worldgen.feature.config.FallingBlockTrapVariant;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
@@ -21,14 +20,11 @@ import java.util.Set;
 
 import static com.displace.cavetraps.worldgen.util.CaveScanUtil.*;
 import static com.displace.cavetraps.worldgen.util.TrapPlacementUtil.*;
-import static java.lang.Math.round;
 
 public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
     public FallingBlockTrapFeature(Codec<FallingBlockTrapConfig> codec) {
         super(codec);
     }
-
-    private record LowerCaveHit(BlockPos airCenter, BlockPos approximateFloor, int gap) {}
 
     @Override
     public boolean place(FeaturePlaceContext<FallingBlockTrapConfig> featurePlaceContext) {
@@ -36,6 +32,16 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
         BlockPos origin = featurePlaceContext.origin();
         RandomSource random = featurePlaceContext.random();
         FallingBlockTrapConfig config = featurePlaceContext.config();
+
+        // find floor below
+        BlockPos floorPosition = findFloorBelow(level, origin, 7);
+        if (floorPosition == null) {
+            return false;
+        } else {
+            origin = floorPosition;
+        }
+
+
 
         // exit if outside y-level
         int y = origin.getY();
@@ -102,18 +108,15 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
             }
         }
 
-        // 1. Mask footprint to the environment's terrain height
+        // Mask footprint to the environment's terrain height
         Set<BlockPos> conformedFootprint = new HashSet<>();
-        Set<Long> flatFootprint = new HashSet<>(); // For fast 2D edge lookups
-
+        Set<Long> flatFootprint = new HashSet<>();
         for (BlockPos pos : trapFootprint) {
-            // Scan down from the highest allowable elevation to find the surface block
             for (int dy = maxTerrainCurve; dy >= -maxTerrainCurve; dy--) {
                 BlockPos checkPos = new BlockPos(pos.getX(), origin.getY() + dy, pos.getZ());
 
                 if (!isAirLike(level, checkPos) && isAirLike(level, checkPos.above())) {
                     conformedFootprint.add(checkPos);
-                    // Store purely the X and Z coordinates as a Long for the edge checker
                     flatFootprint.add(ChunkPos.asLong(pos.getX(), pos.getZ()));
                     break;
                 }
@@ -121,21 +124,19 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
         }
         trapFootprint = conformedFootprint;
 
+
         // Carves the space out. This could be moved to a different helper function.
         BlockPos.MutableBlockPos carvePos = new BlockPos.MutableBlockPos();
         for (BlockPos topPos : trapFootprint) {
             for (int dy = 0; dy <= depth; dy++) {
                 carvePos.setWithOffset(topPos, 0, -dy, 0);
 
-                // should stop it from bypassing bedrock, though this may need to be changed.
                 if (carvePos.getY() <= level.getMinY() + 1) continue;
                 boolean isWallBlock = isEdgeOfFootprint(topPos, flatFootprint) || dy == depth;
 
                 if (isWallBlock) {
-                    // Need to be changed to fit the environment more.
                     level.setBlock(carvePos, decoStone, 2);
                 } else {
-                    // hollow space (where trap generation should be)
                     level.setBlock(carvePos, Blocks.AIR.defaultBlockState(), 2);
                 }
             }
@@ -151,6 +152,11 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
             setTrapBlock(level, topPos, ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState());
             BlockEntity block = level.getBlockEntity(topPos);
             if (block instanceof FallingTrapBlockEntity be) {
+                be.setCamoState(decoStone);
+            }
+            // layers the trap to avoid holes.
+            setTrapBlock(level, topPos.below(), ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState());
+            if (level.getBlockEntity(topPos.below()) instanceof FallingTrapBlockEntity be) {
                 be.setCamoState(decoStone);
             }
 
@@ -186,7 +192,7 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
             }
         }
 
-        if (centerSurface != null && !isEdgeOfFootprint(centerSurface, flatFootprint)) {
+        if (centerSurface != null && !isEdgeOfFootprint(centerSurface, flatFootprint) && random.nextFloat() < lureOreChange) {
             if (level.getBlockEntity(centerSurface) instanceof FallingTrapBlockEntity be) {
                 be.setCamoState(lureOre);
             }
@@ -194,63 +200,6 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
             level.setBlock(centerSurface.above(3), Blocks.SEA_LANTERN.defaultBlockState(), 2);
         }
         return true;
-
-
-
-//        int y = origin.getY();
-//        if (y < config.minY() || y > config.maxY()) return false;
-//
-//        BlockPos upperFloor = findNearestCaveFloor(level, origin, config.upperSearchRadius(), config.upperVerticalSearchRadius());
-//        if (upperFloor == null) return false;
-//
-//        // Check if there is a 5x5x4 space of air above the spot. If it not, fail early and quickly. This is especially important for the upperFloor position. If there isn't 4 blocks of air above, cancel early.
-//        int totalNeededAir = (config.upperSearchRadius() * config.upperVerticalSearchRadius() * config.upperSearchRadius());
-//        int upperCaveAirCount = countAirLikeInBox(level, upperFloor, config.upperSearchRadius() - 1, config.upperVerticalSearchRadius(), config.upperSearchRadius() - 1, totalNeededAir);
-//        if (upperCaveAirCount < (totalNeededAir / 4)) return false;
-//
-//        // check if there is a surrounding amount of floor around the drop point.
-//        if (!locatedOnFlatSurface(level, upperFloor, config.funnelTopRadius(), config.funnelTopRadius())) return false;
-//
-//        // check if there are at least 3 blocks of wall leading down the side.
-//        int minAmountOfWall = (config.funnelTopRadius() - 2) * 8;
-//        if (!hasSurroundingWalls(level, upperFloor, config.funnelTopRadius() + 1, 4, minAmountOfWall)) return false;
-//
-//        LowerCaveHit lowerHit = findLowerCave(level, upperFloor, config);
-//
-//        if (config.carveFunnel()) {
-//            if (lowerHit != null) {
-//                carveFunnel(level, upperFloor, lowerHit.approximateFloor(), config);
-//            }
-//        }
-//
-////        setRadialTrapBlocks(level, upperFloor, ModBlocks.FALLING_TRAP_BLOCK.get().defaultBlockState(), config.funnelTopRadius());
-//
-//        if (lowerHit != null) {
-//            // modify  the floor spike generation. Heavy, more centralized.
-//            return placeSpikes(level, lowerHit.approximateFloor(), config, random);
-//        }
-    }
-
-
-    private LowerCaveHit findLowerCave(WorldGenLevel level, BlockPos upperFloor, FallingBlockTrapConfig config) {
-        BlockPos.MutableBlockPos probe =  new BlockPos.MutableBlockPos();
-
-        for (int dy = config.minGapToLowerCave(); dy <= config.maxGapToLowerCave(); dy++) {
-            probe.setWithOffset(upperFloor, 0, -dy, 0);
-            if (!isAirLike(level, probe)) continue;
-
-            boolean lowerCaveValid = hasMinimumAirVolume(level, probe, config.lowerSearchRadius(), 2,
-                    config.lowerSearchRadius(), config.minLowerCaveAir(), config.maxAirChecks());
-            if (!lowerCaveValid) continue;
-
-            BlockPos lowerFloor = findFloorBelow(level, probe, config.maxGapToLowerCave());
-            if (lowerFloor == null) continue;
-
-            level.setBlock(lowerFloor, Blocks.SEA_LANTERN.defaultBlockState(), 2);
-
-            return new LowerCaveHit(probe.immutable(), lowerFloor, dy);
-        }
-        return null;
     }
 
     private BlockPos findFloorBelow(WorldGenLevel level, BlockPos startAir, int maxDown) {
@@ -262,91 +211,5 @@ public class FallingBlockTrapFeature extends Feature<FallingBlockTrapConfig> {
             }
         }
         return null;
-    }
-
-    private void carveFunnel(WorldGenLevel level, BlockPos upperFloor, BlockPos lowerFloor, FallingBlockTrapConfig config) {
-        int totalDepth = upperFloor.getY() - lowerFloor.getY();
-
-        if (totalDepth <= 0) return;
-
-        int maxCarved = 1024;
-        int carved = 0;
-
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-
-        for (int dy = 1; dy < totalDepth && carved < maxCarved; dy++) {
-            int currentY = upperFloor.getY() - dy;
-            float progress = (float) dy / totalDepth;
-            int radius = round(lerp(config.funnelTopRadius(), config.funnelBottomRadius(), progress));
-            int radiusSqr = radius * radius;
-
-            for (int dx = -radius; dx <= radius && carved < maxCarved; dx++) {
-                for (int dz =  -radius; dz <= radius && carved < maxCarved; dz++) {
-
-                    if (dx * dx + dz * dz > radiusSqr) continue;
-
-                    pos.set(upperFloor.getX() + dx, currentY, upperFloor.getZ() + dz);
-                    if (canCarve(level, pos)) {
-                        level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
-                        carved++;
-                    }
-                }
-            }
-        }
-
-        for (int dy = 1; dy <= totalDepth; dy++) {
-            pos = lowerFloor.mutable();
-            pos.setY(upperFloor.getY() - dy);
-            level.setBlock(pos, Blocks.SEA_LANTERN.defaultBlockState(), 2);
-        }
-
-        setTrapBlock(level, upperFloor, Blocks.SEA_LANTERN.defaultBlockState());
-    }
-
-    private boolean canCarve(WorldGenLevel level, BlockPos pos) {
-        var state = level.getBlockState(pos);
-        if (state.isAir()) return false;
-        if (isLiquid(state)) return false;
-        if (state.is(Blocks.BEDROCK)) return false;
-        if (state.hasBlockEntity()) return false;
-        // Only carve stone-tagged blocks for safety.
-        // TODO - make the block remove ores as well.
-        return state.is(BlockTags.BASE_STONE_OVERWORLD)
-                || state.is(BlockTags.STONE_ORE_REPLACEABLES)
-                || state.is(BlockTags.DEEPSLATE_ORE_REPLACEABLES)
-                || state.is(BlockTags.DIRT)
-                || state.is(BlockTags.OVERWORLD_CARVER_REPLACEABLES)
-                || canReplaceForTrap(level, pos);
-    }
-
-    private static float lerp(float a, float b, float t) {
-        return a + (b - a) * t;
-    }
-
-    private boolean placeSpikes(WorldGenLevel level, BlockPos lowerFloor, FallingBlockTrapConfig config, RandomSource random) {
-        int placed = 0;
-        int attempts = 0;
-        int maxAttempts = config.maxSpikePlacements() * 4;
-
-        BlockPos.MutableBlockPos candidate = new BlockPos.MutableBlockPos();
-        int r = config.lowerSearchRadius();
-        while (placed < config.maxSpikePlacements() &&  attempts < maxAttempts) {
-            attempts++;
-
-            int dx = random.nextInt(r  * 2 + 1) - r;
-            int dz = random.nextInt(r * 2 + 1) - r;
-            candidate.setWithOffset(lowerFloor, dx, 0, dz);
-
-            if (isCaveFloor(level, candidate)) continue;
-            if (random.nextFloat() >= config.spikeChance()) continue;
-
-            BlockPos spikePos =  candidate.above().immutable();
-            if (isAirLike(level, spikePos)) continue;
-
-            setIfReplaceable(level, spikePos, Blocks.POINTED_DRIPSTONE.defaultBlockState());
-
-            placed++;
-        }
-        return placed > 0;
     }
 }

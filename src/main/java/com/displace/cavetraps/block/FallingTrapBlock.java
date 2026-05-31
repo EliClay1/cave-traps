@@ -66,6 +66,7 @@ public class FallingTrapBlock extends FallingBlock implements EntityBlock {
         return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
     }
 
+    // TODO - Modify so that ALL connected blocks (not just horizontally) fall.
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (!level.isClientSide()) {
